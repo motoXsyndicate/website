@@ -9,7 +9,7 @@
     B5 = YouTube livestream URL
 */
 window.MXS_LIVE_CONFIG = {
-  sheetCsvUrl: "https://docs.google.com/spreadsheets/d/1zAOmDFqUOWsrUISAWtUWwU-NxW4RFfq4cRNVqhMVUug/gviz/tq?tqx=out:csv&gid=0&range=A1:B5",
+  sheetCsvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSDh_2uayWivXOYfVNi82Hkygo690LBNWiI5yiKrWZ7d_Nrc3nV_GygbuOWV-iuyPm8QDOMP_1FUQyr/pub?gid=0&single=true&output=csv",
 
   status: "offline",
   youtubeVideoId: "",
