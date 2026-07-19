@@ -1,47 +1,72 @@
-MOTOXSYNDICATE MXS LIVE - QUICK SETUP
-======================================
+MOTOXSYNDICATE MXS LIVE - GOOGLE SHEET CONTROL PANEL
+=====================================================
 
-The live page is located at:
-https://www.motoxsyndicate.com/live/
+Your live page is controlled from the published Google Sheet.
+After this website version is deployed, normal broadcast updates do NOT
+require editing code, using VS Code, pushing GitHub, or redeploying Cloudflare.
+The page checks the sheet about every 10 seconds.
 
-EDIT BEFORE EACH BROADCAST
---------------------------
-Open this file with NOTEPAD (do not double-click it):
-static/live-config.js
-
-1. Schedule your YouTube Live stream.
-2. Copy the video ID from the YouTube URL.
-   Example URL: https://www.youtube.com/watch?v=ABC123xyz
-   Video ID: ABC123xyz
-3. Paste it into:
-   youtubeVideoId: "ABC123xyz",
-4. Change status to:
-   status: "starting", before the stream
-   status: "live", when you go live
-   status: "intermission", between motos
-   status: "ended", when finished
-5. Update the race title, track, class, date, start time, schedule,
-   registration URL, results URL, ticker, next event, and sponsors.
-6. Save the file.
-7. In Command Prompt run these commands ONE AT A TIME:
-
-   cd C:\MXS-Website
-   git add .
-   git commit -m "Update MXS Live broadcast"
-   git push
-
-Cloudflare will automatically deploy the update.
-
-YOUTUBE CHAT
+SHEET LAYOUT
 ------------
-YouTube chat appears automatically as a tab when a video ID is entered.
-Live chat must be enabled for the scheduled YouTube broadcast.
+Keep labels in column A and values in column B. Use these rows:
 
-COUNTDOWN TIME
---------------
-Use a complete date/time with the timezone offset.
-Houston Central Daylight Time example:
-startTime: "2026-07-26T19:00:00-05:00",
+A1  Event Name            B1  TEST Event
+A2  Race Date             B2  July 19, 2026
+A3  Race Time             B3  7:00 PM
+A4  Registration URL      B4  https://...
+A5  YouTube URL           B5  https://...
+A6  Round                 B6  Round 2
+A7  Track                 B7  ARL 2026 Southwick
+A8  Session               B8  Race Coverage
+A9  Broadcast Status      B9  OFF AIR
+A10 Host                  B10 MXS
+A11 Results URL           B11 https://...
+A12 Discord URL           B12 https://discord.gg/...
+A13 Countdown Label       B13 Gate Drops In
+A14 Class                 B14 Open Class
+A15 Format                B15 Two Motos
+A16 Server                B16 MXS Racing
+A17 Subtitle              B17 Race coverage, event information, and results—all in one place.
+A18 Announcement          B18 The next MXS broadcast will appear here.
+A19 Ticker                B19 Riders meeting begins at 6:45 PM CT.
+A20 Schedule Note         B20 Times shown in Central Time.
 
-Houston Central Standard Time example:
-startTime: "2026-12-06T19:00:00-06:00",
+BROADCAST STATUS VALUES
+-----------------------
+OFF AIR
+STARTING SOON
+LIVE
+INTERMISSION
+BROADCAST ENDED
+
+OPTIONAL SCHEDULE ROWS
+----------------------
+A21 Schedule 1 Time       B21 6:00 PM
+A22 Schedule 1 Title      B22 Open Practice
+A23 Schedule 1 Detail     B23 Server opens for riders
+A24 Schedule 2 Time       B24 6:20 PM
+A25 Schedule 2 Title      B25 Qualifying
+A26 Schedule 2 Detail     B26 Timed qualifying session
+A27 Schedule 3 Time       B27 7:00 PM
+A28 Schedule 3 Title      B28 Moto 1
+A29 Schedule 3 Detail     B29 Championship points begin
+A30 Schedule 4 Time       B30 After Moto 1
+A31 Schedule 4 Title      B31 Moto 2
+A32 Schedule 4 Detail     B32 Final moto and overall results
+
+You can add Schedule 5 through Schedule 8 using the same pattern.
+
+OPTIONAL NEXT EVENT ROWS
+------------------------
+A33 Next Event Title          B33 MXS Outdoor Round 3
+A34 Next Event Description    B34 Registration opens Monday.
+A35 Next Event Date           B35 July 26, 2026
+A36 Next Event Track          B36 RedBud
+
+IMPORTANT
+---------
+1. Keep the sheet published to the web as CSV.
+2. Do not rename the labels in column A unless they match the names above.
+3. Press Enter after editing a value.
+4. Changes normally appear within about 10 seconds.
+5. Class, Format, and Server are controlled by rows 14, 15, and 16.

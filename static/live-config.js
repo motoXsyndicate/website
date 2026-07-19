@@ -1,15 +1,15 @@
 /*
   MotoXsyndicate Live defaults.
 
-  Regular race updates now come from the Google Sheet:
-    B1 = Event Name
-    B2 = Race Date (example: July 26, 2026)
-    B3 = Race Time (example: 7:00 PM)
-    B4 = Registration URL
-    B5 = YouTube livestream URL
+  The published Google Sheet controls the live page and is checked every
+  10 seconds. Column A contains field names and column B contains values.
+  Class, Format, and Server are supported with the labels:
+    Class
+    Format
+    Server
 
-  Add the optional rows listed in MXS_Live_Google_Sheet_Setup.txt to control
-  the full page. The website checks the published sheet every 10 seconds.
+  See MXS-LIVE-SETUP.txt and MXS-LIVE-SHEET-TEMPLATE.csv for the complete
+  list of spreadsheet-controlled fields.
 */
 window.MXS_LIVE_CONFIG = {
   sheetRefreshSeconds: 10,
