@@ -1,0 +1,21 @@
+MOTOXSYNDICATE PREMIUM PAINT SETUP
+
+The new product page is located at:
+/paints/mxs-rundown-pink-edition/
+
+The site currently uses your existing PayPal hosted donation button with a requested $5 amount.
+The paid paint file is NOT included anywhere in the public website, so customers cannot download it before you verify payment.
+
+ORDER FLOW:
+1. Customer clicks "Pay $5 with PayPal."
+2. Customer sends their PayPal name/receipt in your Discord.
+3. You verify the payment in PayPal.
+4. You privately send the .pnt file to the customer.
+
+IMPORTANT:
+- Do not place the premium .pnt file inside /static/downloads/ because that would create a public link.
+- When you create a proper PayPal product/payment link, replace both purchase URLs in:
+  /paints/mxs-rundown-pink-edition/index.html
+- Search for: hosted_button_id=8RM4XA39HYTQS
+
+This manual delivery system is the safest option for your current static Cloudflare Pages website without adding a backend.

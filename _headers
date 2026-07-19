@@ -1,0 +1,7 @@
+/static/downloads/*
+  Content-Type: application/octet-stream
+  Content-Disposition: attachment
+
+/static/downloads/*.pnt
+  Content-Type: application/octet-stream
+  Content-Disposition: attachment

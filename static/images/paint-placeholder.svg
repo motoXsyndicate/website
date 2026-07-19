@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 520">
+  <defs><linearGradient id="g" x1="0" x2="1"><stop stop-color="#1d2450"/><stop offset="1" stop-color="#ff304f"/></linearGradient></defs>
+  <rect width="900" height="520" fill="#090c19"/>
+  <path d="M80 380 C170 170, 370 130, 500 230 C610 315, 695 270, 820 140" fill="none" stroke="url(#g)" stroke-width="48" stroke-linecap="round"/>
+  <circle cx="260" cy="375" r="70" fill="none" stroke="#fff" stroke-width="18" opacity=".85"/>
+  <circle cx="660" cy="375" r="70" fill="none" stroke="#fff" stroke-width="18" opacity=".85"/>
+  <text x="450" y="95" text-anchor="middle" font-family="Arial Black, Arial" font-size="44" fill="#fff">PAINT PREVIEW</text>
+  <text x="450" y="145" text-anchor="middle" font-family="Arial" font-size="24" fill="#d5dafd">Replace this image with your screenshot</text>
+</svg>
