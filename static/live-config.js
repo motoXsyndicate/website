@@ -1,17 +1,21 @@
 /*
-  MotoXsyndicate Live settings
-  Edit this file in Notepad, save it, then commit and push to GitHub.
+  MotoXsyndicate Live defaults.
 
-  status options: "offline", "starting", "live", "intermission", "ended"
-  youtubeVideoId is the characters after v= in a YouTube URL.
-  Example: https://www.youtube.com/watch?v=ABC123xyz -> ABC123xyz
+  Regular race updates now come from the Google Sheet:
+    B1 = Event Name
+    B2 = Countdown date/time
+    B3 = Registration URL
+    B4 = YouTube livestream URL
 
-  startTime must include the timezone offset.
-  Houston/Central Daylight Time example: 2026-07-26T19:00:00-05:00
+  Recommended countdown format for Houston/Central time:
+    2026-07-26T19:00:00-05:00
 */
 window.MXS_LIVE_CONFIG = {
+  sheetCsvUrl: "https://docs.google.com/spreadsheets/d/1zAOmDFqUOWsrUISAWtUWwU-NxW4RFfq4cRNVqhMVUug/gviz/tq?tqx=out:csv&gid=0&range=A1:B4",
+
   status: "offline",
   youtubeVideoId: "",
+  youtubeUrl: "",
 
   eventTitle: "MotoXsyndicate Outdoor Championship",
   subtitle: "Race coverage, event information, and results—all in one place.",

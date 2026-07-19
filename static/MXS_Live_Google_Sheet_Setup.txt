@@ -1,0 +1,66 @@
+MXS LIVE GOOGLE SHEET SETUP
+
+1. Open your Google Sheet.
+2. Rename the first sheet tab to: Live
+3. Paste the two-column table below into cell A1.
+4. In Google Sheets, go to File > Share > Publish to web.
+5. Publish the "Live" sheet as a web page, then confirm.
+6. Replace these two website files:
+   C:\MXS-Website\static\live-config.js
+   C:\MXS-Website\static\live.js
+7. Push the changes to GitHub once.
+
+After that, edit the Google Sheet for every race. No more code changes or Git pushes.
+
+SETTING	VALUE
+status	offline
+youtubeUrl	
+youtubeChannelUrl	https://www.youtube.com/@MotoXsyndicate
+registrationUrl	
+resultsUrl	
+eventTitle	MotoXsyndicate Outdoor Championship
+subtitle	Race coverage, event information, and results—all in one place.
+round	Round 2
+track	Southwick
+session	Race Coverage
+raceClass	250 and 450
+raceFormat	20 Minutes + 2 Laps
+server	MXS Racing
+host	MotoXsyndicate
+eventDate	July 19, 2026
+eventTime	7:00 PM Central
+startTime	2026-07-19T19:00:00-05:00
+announcement	The next MXS broadcast will appear here.
+ticker	
+scheduleNote	Times shown in Central Time.
+schedule1Time	6:00 PM
+schedule1Title	Open Practice
+schedule1Detail	Server opens for riders
+schedule2Time	6:20 PM
+schedule2Title	Qualifying
+schedule2Detail	Timed qualifying session
+schedule3Time	7:00 PM
+schedule3Title	Moto 1
+schedule3Detail	Championship points begin
+schedule4Time	After Moto 1
+schedule4Title	Moto 2
+schedule4Detail	Final moto and overall results
+nextEventTitle	More MXS racing coming soon
+nextEventDescription	The next event will be announced through Discord and MotoXsyndicate.com.
+nextEventDate	Date TBA
+nextEventTrack	Track TBA
+
+STATUS OPTIONS:
+offline
+starting
+live
+intermission
+ended
+
+YOUTUBE:
+Paste the full YouTube livestream URL into youtubeUrl.
+When youtubeUrl is blank, the button opens the MXS YouTube channel instead.
+
+REGISTRATION:
+Paste the full Google Form or registration page URL into registrationUrl.
+Leave it blank to hide the Race Registration button.
