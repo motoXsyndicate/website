@@ -3,15 +3,13 @@
 
   Regular race updates now come from the Google Sheet:
     B1 = Event Name
-    B2 = Countdown date/time
-    B3 = Registration URL
-    B4 = YouTube livestream URL
-
-  Recommended countdown format for Houston/Central time:
-    2026-07-26T19:00:00-05:00
+    B2 = Race Date (example: July 26, 2026)
+    B3 = Race Time (example: 7:00 PM)
+    B4 = Registration URL
+    B5 = YouTube livestream URL
 */
 window.MXS_LIVE_CONFIG = {
-  sheetCsvUrl: "https://docs.google.com/spreadsheets/d/1zAOmDFqUOWsrUISAWtUWwU-NxW4RFfq4cRNVqhMVUug/gviz/tq?tqx=out:csv&gid=0&range=A1:B4",
+  sheetCsvUrl: "https://docs.google.com/spreadsheets/d/1zAOmDFqUOWsrUISAWtUWwU-NxW4RFfq4cRNVqhMVUug/gviz/tq?tqx=out:csv&gid=0&range=A1:B5",
 
   status: "offline",
   youtubeVideoId: "",

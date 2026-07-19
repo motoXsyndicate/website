@@ -40,6 +40,43 @@
     return rows;
   }
 
+
+  function centralDateTimeToIso(dateValue, timeValue) {
+    const combined = `${safeText(dateValue).trim()} ${safeText(timeValue).trim()}`.trim();
+    if (!combined) return "";
+
+    const parsed = new Date(combined);
+    if (Number.isNaN(parsed.getTime())) return "";
+
+    // Read the typed calendar parts, then interpret them in America/Chicago
+    // so visitors in other time zones still see the correct countdown.
+    const year = parsed.getFullYear();
+    const month = parsed.getMonth() + 1;
+    const day = parsed.getDate();
+    const hour = parsed.getHours();
+    const minute = parsed.getMinutes();
+    const second = parsed.getSeconds();
+
+    let utcGuess = Date.UTC(year, month - 1, day, hour, minute, second);
+    const formatter = new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/Chicago",
+      year: "numeric", month: "2-digit", day: "2-digit",
+      hour: "2-digit", minute: "2-digit", second: "2-digit",
+      hourCycle: "h23"
+    });
+
+    for (let i = 0; i < 2; i += 1) {
+      const parts = Object.fromEntries(formatter.formatToParts(new Date(utcGuess))
+        .filter((part) => part.type !== "literal")
+        .map((part) => [part.type, Number(part.value)]));
+      const shownAsUtc = Date.UTC(parts.year, parts.month - 1, parts.day, parts.hour, parts.minute, parts.second);
+      const desiredAsUtc = Date.UTC(year, month - 1, day, hour, minute, second);
+      utcGuess += desiredAsUtc - shownAsUtc;
+    }
+
+    return new Date(utcGuess).toISOString();
+  }
+
   function extractYouTubeId(value) {
     const input = safeText(value).trim();
     if (!input) return "";
@@ -74,9 +111,11 @@
       const values = rows.map((row) => safeText(row[1]).trim());
 
       if (values[0]) cfg.eventTitle = values[0];
-      if (values[1]) cfg.startTime = values[1];
-      if (values[2]) cfg.registrationUrl = values[2];
-      if (values[3]) cfg.youtubeUrl = values[3];
+      if (values[1]) cfg.eventDate = values[1];
+      if (values[2]) cfg.eventTime = values[2];
+      if (values[1] && values[2]) cfg.startTime = centralDateTimeToIso(values[1], values[2]);
+      if (values[3]) cfg.registrationUrl = values[3];
+      if (values[4]) cfg.youtubeUrl = values[4];
     } catch (error) {
       console.warn("MXS Live could not load Google Sheet settings. Using website defaults.", error);
     }
