@@ -1,0 +1,14 @@
+MXS LIVE FIELD RESET FIX
+
+This build fixes spreadsheet-controlled fields changing briefly and then
+returning to the old/default values.
+
+Cause: every 10-second refresh rebuilt the page from hardcoded defaults.
+If Google returned an older or partial cached copy of the sheet, any missing
+rows were replaced by defaults such as Open Class, Two Motos, and MXS Racing.
+
+Fix: every refresh now merges sheet data into the last successfully loaded
+values. A temporary partial response can no longer reset fields.
+
+The Live page script URLs also include a new version number so browsers and
+Cloudflare do not keep serving the previous JavaScript file.

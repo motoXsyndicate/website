@@ -82,7 +82,11 @@
   }
 
   function buildConfigFromRows(rows) {
-    const next = structuredClone ? structuredClone(defaults) : JSON.parse(JSON.stringify(defaults));
+    // Merge new sheet values into the last successful configuration.
+    // This prevents temporary, cached, or partially loaded Google Sheet data
+    // from resetting fields back to the website defaults.
+    const base = cfg || defaults;
+    const next = typeof structuredClone === "function" ? structuredClone(base) : JSON.parse(JSON.stringify(base));
     const map = new Map();
     rows.forEach((row) => {
       const key = normalizeKey(row[0]);
@@ -124,7 +128,7 @@
 
     next.startTime = next.eventDate && next.eventTime
       ? centralDateTimeToIso(next.eventDate, next.eventTime)
-      : defaults.startTime || "";
+      : next.startTime || defaults.startTime || "";
 
     const schedule = [];
     for (let i = 1; i <= 8; i += 1) {
@@ -135,7 +139,7 @@
     }
     if (schedule.length) next.schedule = schedule;
 
-    const nextEvent = { ...(defaults.nextEvent || {}) };
+    const nextEvent = { ...(next.nextEvent || defaults.nextEvent || {}) };
     const nextTitle = get("Next Event Title");
     const nextDescription = get("Next Event Description");
     const nextDate = get("Next Event Date");

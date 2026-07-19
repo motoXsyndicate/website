@@ -1,3 +1,9 @@
+/*
+  Cache-Control: no-cache, must-revalidate
+
+/static/*
+  Cache-Control: public, max-age=31536000, immutable
+
 /static/downloads/*
   Content-Type: application/octet-stream
   Content-Disposition: attachment
