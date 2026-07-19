@@ -1,0 +1,40 @@
+MOTOXSYNDICATE LIVE SETUP
+==========================
+
+The new page is:
+https://www.motoxsyndicate.com/live/
+
+BEFORE A BROADCAST
+1. Schedule your stream in YouTube Studio.
+2. Copy the YouTube video ID. It is the text after "v=" in the watch URL.
+3. Open static/live-config.js in Notepad or your code editor.
+4. Set youtubeVideoId to that ID.
+5. Set status to "starting" or "live".
+6. Update the event title, round, track, session, optional countdown, and links.
+7. Save the file.
+8. In Command Prompt:
+
+   cd C:\MXS-Website
+   git add .
+   git commit -m "Update MXS Live broadcast"
+   git push
+
+Cloudflare will deploy the update automatically.
+
+STATUS OPTIONS
+"offline"      Off-air screen
+"starting"     Starting Soon
+"live"         Live Now
+"intermission" Intermission
+"ended"        Broadcast Ended
+
+START TIME FORMAT
+Use an ISO date/time with your offset. Houston during daylight time is -05:00.
+Example:
+startTime: "2026-07-19T19:00:00-05:00"
+
+YOUTUBE EXAMPLE
+URL: https://www.youtube.com/watch?v=ABC123xyz
+ID:  ABC123xyz
+
+The YouTube video remains hosted and delivered by YouTube. The embedded player lets viewers watch it on the MotoXsyndicate website.
