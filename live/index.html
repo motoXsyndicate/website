@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Watch MotoXsyndicate MX Bikes racing broadcasts live.">
+  <meta name="description" content="Watch official MotoXsyndicate MX Bikes race broadcasts, event information, schedules, and results live.">
   <title>MXS Live | MotoXsyndicate</title>
   <link rel="stylesheet" href="/static/style.css">
 </head>
-<body>
+<body class="mxs-live-page">
   <header class="site-header">
     <nav class="nav-wrap">
       <a class="brand-link" href="/">
@@ -26,37 +26,67 @@
     </nav>
   </header>
 
-  <main class="live-main">
-    <section class="live-heading">
+  <div id="broadcast-ticker" class="broadcast-ticker" hidden>
+    <span class="ticker-label">MXS UPDATE</span>
+    <div class="ticker-window"><span id="ticker-text"></span></div>
+  </div>
+
+  <main class="live-main pro-live-main">
+    <section class="live-heading pro-live-heading">
       <div>
-        <p class="eyebrow">OFFICIAL RACE COVERAGE</p>
+        <p class="eyebrow">OFFICIAL MOTOXSYNDICATE BROADCAST</p>
         <h1>MXS <span>LIVE</span></h1>
-        <p>Watch MotoXsyndicate events here while the stream is delivered securely through YouTube.</p>
+        <p id="broadcast-subtitle">Race coverage, event information, and results—all in one place.</p>
       </div>
       <div id="live-status" class="live-status" data-status="offline">OFF AIR</div>
     </section>
 
-    <section class="broadcast-shell">
-      <div class="video-stage">
-        <iframe id="youtube-player" title="MotoXsyndicate YouTube Live broadcast" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen hidden></iframe>
-        <div id="stream-placeholder" class="stream-placeholder">
-          <img src="/static/images/motoxsyndicate-skull.png" alt="" aria-hidden="true">
-          <p class="eyebrow">MXS LIVE</p>
-          <h2>Broadcast currently off air</h2>
-          <p id="live-announcement">The next MXS broadcast will appear here.</p>
+    <section class="broadcast-shell pro-broadcast-shell">
+      <div class="broadcast-viewer-column">
+        <div class="video-stage pro-video-stage">
+          <iframe id="youtube-player" title="MotoXsyndicate YouTube Live broadcast" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen hidden></iframe>
+          <div id="stream-placeholder" class="stream-placeholder pro-stream-placeholder">
+            <img src="/static/images/motoxsyndicate-skull.png" alt="" aria-hidden="true">
+            <p class="eyebrow">MXS LIVE</p>
+            <h2>Broadcast currently off air</h2>
+            <p id="live-announcement">The next MXS broadcast will appear here.</p>
+          </div>
+          <div class="video-corner-bug" aria-hidden="true">MXS LIVE</div>
+        </div>
+
+        <div class="broadcast-tabs" role="tablist" aria-label="Broadcast panels">
+          <button class="broadcast-tab active" data-panel="race-info" type="button">Race Info</button>
+          <button id="chat-tab" class="broadcast-tab" data-panel="live-chat" type="button" hidden>Live Chat</button>
+        </div>
+
+        <div id="race-info" class="broadcast-panel active">
+          <div class="race-strip">
+            <div><span>CLASS</span><strong id="event-class">Open</strong></div>
+            <div><span>FORMAT</span><strong id="event-format">Two Motos</strong></div>
+            <div><span>SERVER</span><strong id="event-server">MXS Racing</strong></div>
+            <div><span>HOST</span><strong id="event-host">MotoXsyndicate</strong></div>
+          </div>
+        </div>
+
+        <div id="live-chat" class="broadcast-panel" hidden>
+          <iframe id="youtube-chat" class="youtube-chat" title="MotoXsyndicate YouTube live chat"></iframe>
         </div>
       </div>
 
-      <aside class="broadcast-info">
+      <aside class="broadcast-info pro-broadcast-info">
         <p class="eyebrow">CURRENT EVENT</p>
         <h2 id="event-title">MotoXsyndicate Outdoor Championship</h2>
         <div class="event-detail"><span>Round</span><strong id="event-round">Next Broadcast</strong></div>
         <div class="event-detail"><span>Track</span><strong id="event-track">TBA</strong></div>
         <div class="event-detail"><span>Session</span><strong id="event-session">Race Coverage</strong></div>
+        <div class="event-detail"><span>Date</span><strong id="event-date">To Be Announced</strong></div>
+        <div class="event-detail"><span>Start Time</span><strong id="event-time">To Be Announced</strong></div>
+
         <div id="countdown-wrap" class="countdown-card" hidden>
           <span>Gate drops in</span>
           <strong id="countdown">00:00:00</strong>
         </div>
+
         <div class="live-actions">
           <a id="youtube-link" class="btn primary full" href="#" target="_blank" rel="noopener" hidden>Open on YouTube</a>
           <a id="registration-link" class="btn secondary full" href="#" target="_blank" rel="noopener" hidden>Race Registration</a>
@@ -66,22 +96,48 @@
       </aside>
     </section>
 
-    <section class="live-feature-grid">
-      <article class="info-card">
-        <p class="eyebrow">WATCH HERE</p>
-        <h3>Your broadcast headquarters</h3>
-        <p>Share <strong>motoxsyndicate.com/live</strong> so viewers stay inside the MXS brand while watching the YouTube stream.</p>
+    <section class="live-section-block">
+      <div class="section-title-row">
+        <div>
+          <p class="eyebrow">RACE NIGHT</p>
+          <h2>Event schedule</h2>
+        </div>
+        <p id="schedule-note">Times shown in Central Time.</p>
+      </div>
+      <div id="schedule-grid" class="schedule-grid"></div>
+    </section>
+
+    <section class="live-two-column">
+      <article class="live-section-block compact-block">
+        <p class="eyebrow">VIEWER GUIDE</p>
+        <h2>How to follow the action</h2>
+        <div class="viewer-guide">
+          <div><span>01</span><p><strong>Watch here.</strong> The YouTube broadcast is embedded directly on MotoXsyndicate.</p></div>
+          <div><span>02</span><p><strong>Join Discord.</strong> Get announcements, server information, and race-night support.</p></div>
+          <div><span>03</span><p><strong>Check results.</strong> Use the results button after each moto for official standings.</p></div>
+        </div>
       </article>
-      <article class="info-card">
-        <p class="eyebrow">RACE NIGHT</p>
-        <h3>Event information</h3>
-        <p>Round, track, session, countdown, registration, and results links can all be updated before each event.</p>
+
+      <article class="live-section-block compact-block">
+        <p class="eyebrow">NEXT BROADCAST</p>
+        <h2 id="next-event-title">More MXS racing coming soon</h2>
+        <p id="next-event-description">The next event will be announced through Discord and MotoXsyndicate.com.</p>
+        <div class="next-event-meta">
+          <span id="next-event-date">Date TBA</span>
+          <span id="next-event-track">Track TBA</span>
+        </div>
       </article>
-      <article class="info-card">
-        <p class="eyebrow">COMING NEXT</p>
-        <h3>Live timing and standings</h3>
-        <p>The layout is ready for future timing data, championship standings, sponsors, and broadcast graphics.</p>
-      </article>
+    </section>
+
+    <section class="live-section-block sponsor-block">
+      <div class="section-title-row">
+        <div>
+          <p class="eyebrow">SUPPORTED BY</p>
+          <h2>Broadcast partners</h2>
+        </div>
+        <p>Partner space available for future MXS broadcasts.</p>
+      </div>
+      <div id="sponsor-grid" class="sponsor-grid"></div>
     </section>
   </main>
 

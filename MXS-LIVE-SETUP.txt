@@ -1,40 +1,47 @@
-MOTOXSYNDICATE LIVE SETUP
-==========================
+MOTOXSYNDICATE MXS LIVE - QUICK SETUP
+======================================
 
-The new page is:
+The live page is located at:
 https://www.motoxsyndicate.com/live/
 
-BEFORE A BROADCAST
-1. Schedule your stream in YouTube Studio.
-2. Copy the YouTube video ID. It is the text after "v=" in the watch URL.
-3. Open static/live-config.js in Notepad or your code editor.
-4. Set youtubeVideoId to that ID.
-5. Set status to "starting" or "live".
-6. Update the event title, round, track, session, optional countdown, and links.
-7. Save the file.
-8. In Command Prompt:
+EDIT BEFORE EACH BROADCAST
+--------------------------
+Open this file with NOTEPAD (do not double-click it):
+static/live-config.js
+
+1. Schedule your YouTube Live stream.
+2. Copy the video ID from the YouTube URL.
+   Example URL: https://www.youtube.com/watch?v=ABC123xyz
+   Video ID: ABC123xyz
+3. Paste it into:
+   youtubeVideoId: "ABC123xyz",
+4. Change status to:
+   status: "starting", before the stream
+   status: "live", when you go live
+   status: "intermission", between motos
+   status: "ended", when finished
+5. Update the race title, track, class, date, start time, schedule,
+   registration URL, results URL, ticker, next event, and sponsors.
+6. Save the file.
+7. In Command Prompt run these commands ONE AT A TIME:
 
    cd C:\MXS-Website
    git add .
    git commit -m "Update MXS Live broadcast"
    git push
 
-Cloudflare will deploy the update automatically.
+Cloudflare will automatically deploy the update.
 
-STATUS OPTIONS
-"offline"      Off-air screen
-"starting"     Starting Soon
-"live"         Live Now
-"intermission" Intermission
-"ended"        Broadcast Ended
+YOUTUBE CHAT
+------------
+YouTube chat appears automatically as a tab when a video ID is entered.
+Live chat must be enabled for the scheduled YouTube broadcast.
 
-START TIME FORMAT
-Use an ISO date/time with your offset. Houston during daylight time is -05:00.
-Example:
-startTime: "2026-07-19T19:00:00-05:00"
+COUNTDOWN TIME
+--------------
+Use a complete date/time with the timezone offset.
+Houston Central Daylight Time example:
+startTime: "2026-07-26T19:00:00-05:00",
 
-YOUTUBE EXAMPLE
-URL: https://www.youtube.com/watch?v=ABC123xyz
-ID:  ABC123xyz
-
-The YouTube video remains hosted and delivered by YouTube. The embedded player lets viewers watch it on the MotoXsyndicate website.
+Houston Central Standard Time example:
+startTime: "2026-12-06T19:00:00-06:00",
