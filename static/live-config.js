@@ -7,8 +7,12 @@
     B3 = Race Time (example: 7:00 PM)
     B4 = Registration URL
     B5 = YouTube livestream URL
+
+  Add the optional rows listed in MXS_Live_Google_Sheet_Setup.txt to control
+  the full page. The website checks the published sheet every 10 seconds.
 */
 window.MXS_LIVE_CONFIG = {
+  sheetRefreshSeconds: 10,
   sheetCsvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSDh_2uayWivXOYfVNi82Hkygo690LBNWiI5yiKrWZ7d_Nrc3nV_GygbuOWV-iuyPm8QDOMP_1FUQyr/pub?gid=0&single=true&output=csv",
 
   status: "offline",
@@ -29,6 +33,7 @@ window.MXS_LIVE_CONFIG = {
   startTime: "",
 
   announcement: "The next MXS broadcast will appear here.",
+  countdownLabel: "Gate drops in",
   ticker: "",
   scheduleNote: "Times shown in Central Time.",
 

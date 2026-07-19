@@ -1,66 +1,76 @@
-MXS LIVE GOOGLE SHEET SETUP
+MXS LIVE GOOGLE SHEET CONTROL PANEL
+===================================
 
-1. Open your Google Sheet.
-2. Rename the first sheet tab to: Live
-3. Paste the two-column table below into cell A1.
-4. In Google Sheets, go to File > Share > Publish to web.
-5. Publish the "Live" sheet as a web page, then confirm.
-6. Replace these two website files:
-   C:\MXS-Website\static\live-config.js
-   C:\MXS-Website\static\live.js
-7. Push the changes to GitHub once.
+The Live page checks the published Google Sheet every 10 seconds.
+After this website version is deployed, normal race-night changes do NOT
+require VS Code, GitHub edits, or another Cloudflare deployment.
 
-After that, edit the Google Sheet for every race. No more code changes or Git pushes.
+Keep labels in column A and enter values in column B.
+Labels are not case-sensitive.
 
-SETTING	VALUE
-status	offline
-youtubeUrl	
-youtubeChannelUrl	https://www.youtube.com/@MotoXsyndicate
-registrationUrl	
-resultsUrl	
-eventTitle	MotoXsyndicate Outdoor Championship
-subtitle	Race coverage, event information, and results—all in one place.
-round	Round 2
-track	Southwick
-session	Race Coverage
-raceClass	250 and 450
-raceFormat	20 Minutes + 2 Laps
-server	MXS Racing
-host	MotoXsyndicate
-eventDate	July 19, 2026
-eventTime	7:00 PM Central
-startTime	2026-07-19T19:00:00-05:00
-announcement	The next MXS broadcast will appear here.
-ticker	
-scheduleNote	Times shown in Central Time.
-schedule1Time	6:00 PM
-schedule1Title	Open Practice
-schedule1Detail	Server opens for riders
-schedule2Time	6:20 PM
-schedule2Title	Qualifying
-schedule2Detail	Timed qualifying session
-schedule3Time	7:00 PM
-schedule3Title	Moto 1
-schedule3Detail	Championship points begin
-schedule4Time	After Moto 1
-schedule4Title	Moto 2
-schedule4Detail	Final moto and overall results
-nextEventTitle	More MXS racing coming soon
-nextEventDescription	The next event will be announced through Discord and MotoXsyndicate.com.
-nextEventDate	Date TBA
-nextEventTrack	Track TBA
+CORE ROWS
+---------
+A1  Event Name             B1  MXS Outdoor Round 2
+A2  Race Date              B2  July 19, 2026
+A3  Race Time              B3  7:00 PM
+A4  Registration URL       B4  https://...
+A5  YouTube URL            B5  https://youtube.com/watch?v=...
 
-STATUS OPTIONS:
-offline
-starting
-live
-intermission
-ended
+FULL PAGE CONTROL (add these under row 5)
+-----------------------------------------
+A6  Broadcast Status       B6  OFF AIR
+A7  Round                   B7  Round 2
+A8  Track                   B8  Southwick
+A9  Session                 B9  Race Coverage
+A10 Race Class              B10 250 & 450
+A11 Race Format             B11 Two Motos
+A12 Server                  B12 MXS Racing
+A13 Host                    B13 MotoXsyndicate
+A14 Subtitle                B14 Official MXS race coverage
+A15 Announcement            B15 Broadcast begins at 7:00 PM Central.
+A16 Ticker                  B16 Rider meeting at 6:45 PM.
+A17 Countdown Label         B17 Gate drops in
+A18 Results URL             B18 https://...
+A19 Discord URL             B19 https://discord.gg/...
+A20 Schedule Note           B20 Times shown in Central Time.
 
-YOUTUBE:
-Paste the full YouTube livestream URL into youtubeUrl.
-When youtubeUrl is blank, the button opens the MXS YouTube channel instead.
+STATUS VALUES
+-------------
+OFF AIR
+STARTING SOON
+LIVE
+INTERMISSION
+BROADCAST ENDED
 
-REGISTRATION:
-Paste the full Google Form or registration page URL into registrationUrl.
-Leave it blank to hide the Race Registration button.
+OPTIONAL EVENT SCHEDULE
+-----------------------
+A21 Schedule 1 Time         B21 6:00 PM
+A22 Schedule 1 Title        B22 Open Practice
+A23 Schedule 1 Detail       B23 Server opens for riders
+A24 Schedule 2 Time         B24 6:20 PM
+A25 Schedule 2 Title        B25 Qualifying
+A26 Schedule 2 Detail       B26 Timed qualifying session
+A27 Schedule 3 Time         B27 7:00 PM
+A28 Schedule 3 Title        B28 Moto 1
+A29 Schedule 3 Detail       B29 Championship points begin
+A30 Schedule 4 Time         B30 After Moto 1
+A31 Schedule 4 Title        B31 Moto 2
+A32 Schedule 4 Detail       B32 Final moto and overall results
+
+You may add Schedule 5 through Schedule 8 using the same naming pattern.
+
+OPTIONAL NEXT EVENT BOX
+-----------------------
+A33 Next Event Title        B33 MXS Outdoor Round 3
+A34 Next Event Description  B34 Registration opens next week.
+A35 Next Event Date         B35 July 26, 2026
+A36 Next Event Track        B36 RedBud
+
+IMPORTANT
+---------
+1. The Google Sheet must remain published to the web as CSV.
+2. Press Enter after changing a cell.
+3. Existing viewers receive the update within about 10 seconds.
+4. Blank optional cells fall back to the defaults in live-config.js.
+5. Use a full YouTube watch/live URL with a video ID to embed the stream.
+   A channel URL can open in a button but cannot be embedded automatically.
