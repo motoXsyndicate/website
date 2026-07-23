@@ -1,151 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MotoXsyndicate | Premium MX Bikes Paints & Server Tools</title>
-    <link rel="stylesheet" href="/static/style.css?v=20260719c">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>MXS Broadcast Overlay</title>
+  <link rel="stylesheet" href="/overlay/overlay.css?v=20260722a">
 </head>
 <body>
-    <header class="site-header">
-        <nav class="nav-wrap">
-            <a class="brand-link" href="/">
-                <img src="/static/images/motoxsyndicate-wordmark.png?v=20260719c" alt="MotoXsyndicate" class="nav-logo wordmark-logo">
-            </a>
-            <button class="mobile-menu" onclick="document.body.classList.toggle('nav-open')">☰</button>
-            <div class="nav-links">
-                <a href="/">Home</a>
-                <a href="/live/">MXS Live</a>
-                <a href="/paints/">Paints</a>
-                <a href="/server-manager/">Hosting Soon</a>
-                <a href="/about/">About</a>
-                <a href="/contact/">Contact</a>
-                <a href="https://www.paypal.com/donate/?hosted_button_id=8RM4XA39HYTQS" target="_blank" rel="noopener">Support</a>
-                <a class="nav-discord" href="https://discord.gg/2XXBNqXJwD" target="_blank" rel="noopener">Discord</a>
-            </div>
-        </nav>
-    </header>
-    <main>
-<section class="brand-hero">
-    <img class="hero-skull" src="/static/images/motoxsyndicate-skull.png?v=20260719c" alt="" aria-hidden="true">
-    <div class="brand-hero-bg" style="background-image:url('/static/images/yz250f-freedom-hero.png')"></div>
-    <div class="brand-hero-content">
-        <img class="hero-wordmark" src="/static/images/motoxsyndicate-wordmark.png?v=20260719c" alt="MotoXsyndicate">
-        <p class="eyebrow">MX BIKES GRAPHICS • SERVERS • COMMUNITY</p>
-        <h1>Premium MX Bikes paints built for riders.</h1>
-        <p class="hero-text">Download MotoXsyndicate graphics, follow server manager updates, and join the community behind the brand.</p>
-        <div class="hero-actions">
-            <a class="btn primary" href="/paints/">Browse Paints</a>
-            <a class="btn secondary" href="/server-manager/">Hosting Coming Soon</a>
-            <a class="btn ghost" href="https://discord.gg/2XXBNqXJwD" target="_blank" rel="noopener">Join Discord</a>
+  <main class="overlay" aria-live="polite">
+    <section class="top-left-card">
+      <div class="brand-row">
+        <span class="mxs-badge">MXS</span>
+        <span id="status" class="status" data-status="offline">OFF AIR</span>
+      </div>
+      <div class="event-copy">
+        <h1 id="event-title">MotoXsyndicate Outdoor Championship</h1>
+        <div class="event-meta">
+          <span id="round">Next Broadcast</span>
+          <span class="divider">•</span>
+          <span id="track">Track TBA</span>
         </div>
-    </div>
-</section>
+      </div>
+    </section>
 
-<section class="section-title centered-title">
-    <p class="eyebrow">LATEST RELEASES</p>
-    <h2>MSX Freedom Paints</h2>
-    <p>Pick your bike and download the exact paint file you need.</p>
-</section>
+    <section class="session-card">
+      <span class="session-label">CURRENT SESSION</span>
+      <strong id="session">Race Coverage</strong>
+      <div class="session-meta">
+        <span id="race-class">Open Class</span>
+        <span class="divider">•</span>
+        <span id="race-format">Two Motos</span>
+      </div>
+    </section>
 
-<section class="paint-grid home-grid premium-grid">
-    
-    <article class="paint-card premium-card">
-        <a href="/paints/msx-freedom-kx250f/">
-            <img src="/static/images/kx250f-freedom-template.jpeg?v=20260719c" alt="MSX Freedom KX250F actual template preview">
-        </a>
-        <div class="paint-body">
-            <span class="paint-bike">KX250F</span><span class="paint-fit">Fits the 250/450</span>
-            <h2>MSX Freedom</h2>
-            <p>Patriotic MotoXsyndicate graphics for the OEM KX250F. Built with red, white, and blue race styling for MX Bikes.</p>
-            <div class="paint-meta">
-                <span>v1.0</span>
-                <span>Free</span>
-                <span>MX Bikes</span>
-            </div>
-            <div class="button-row">
-                <a class="btn secondary full" href="/paints/msx-freedom-kx250f/">View Paint</a>
-                <a class="btn primary full" href="/static/downloads/MSXFreedomKX250.pnt?v=20260719c" download="MSXFreedomKX250.pnt">Download KX250F Paint</a>
-                <a class="btn support full" href="https://www.paypal.com/donate/?hosted_button_id=8RM4XA39HYTQS" target="_blank" rel="noopener">❤️ Support MotoXsyndicate</a>
-            </div>
-        </div>
-    </article>
-    
-    <article class="paint-card premium-card">
-        <a href="/paints/msx-freedom-yz250f/">
-            <img src="/static/images/yz250f-freedom-template.jpeg?v=20260719c" alt="MSX Freedom YZ250F actual template preview">
-        </a>
-        <div class="paint-body">
-            <span class="paint-bike">YZ250F</span><span class="paint-fit">Fits the 250/450</span>
-            <h2>MSX Freedom</h2>
-            <p>Patriotic MotoXsyndicate graphics for the OEM YZ250F. Designed as part of the MSX Freedom release for MX Bikes.</p>
-            <div class="paint-meta">
-                <span>v1.0</span>
-                <span>Free</span>
-                <span>MX Bikes</span>
-            </div>
-            <div class="button-row">
-                <a class="btn secondary full" href="/paints/msx-freedom-yz250f/">View Paint</a>
-                <a class="btn primary full" href="/static/downloads/MXS-YZ2freedom.pnt?v=20260719c" download="MXS-YZ2freedom.pnt">Download YZ250F Paint</a>
-                <a class="btn support full" href="https://www.paypal.com/donate/?hosted_button_id=8RM4XA39HYTQS" target="_blank" rel="noopener">❤️ Support MotoXsyndicate</a>
-            </div>
-        </div>
-    </article>
-    
-</section>
+    <section id="countdown-card" class="countdown-card" hidden>
+      <span id="countdown-label">Gate drops in</span>
+      <strong id="countdown">00:00:00</strong>
+    </section>
 
-<section class="brand-strip">
-    <img src="/static/images/motoxsyndicate-skull.png?v=20260719c" alt="MotoXsyndicate skull logo">
-    <div>
-        <p class="eyebrow">RIDE. RACE. SYNDICATE.</p>
-        <h2>More than a download page.</h2>
-        <p>MotoXsyndicate is being built as a home for MX Bikes paints, server hosting, future events, and community releases.</p>
-        <div class="hero-actions">
-            <a class="btn primary" href="https://discord.gg/2XXBNqXJwD" target="_blank" rel="noopener">Join Discord</a>
-            <a class="btn secondary" href="https://mail.google.com/mail/?view=cm&fs=1&to=motoXsyndicate@gmail.com" target="_blank" rel="noopener">Open Gmail</a>
-            <a class="btn support" href="https://www.paypal.com/donate/?hosted_button_id=8RM4XA39HYTQS" target="_blank" rel="noopener">Support the Project</a>
-        </div>
-    </div>
-</section>
+    <section id="ticker" class="ticker" hidden>
+      <span class="ticker-label">MXS UPDATE</span>
+      <div class="ticker-window"><span id="ticker-text"></span></div>
+    </section>
 
-<section class="support-panel">
-    <div>
-        <p class="eyebrow">SUPPORT MOTOXSYNDICATE</p>
-        <h2>Help build the future of MotoXsyndicate.</h2>
-        <p>Free downloads will stay free. Optional support helps expand MotoXsyndicate with servers, tools, graphics, and community events.</p>
-    </div>
-    <a class="btn support" href="https://www.paypal.com/donate/?hosted_button_id=8RM4XA39HYTQS" target="_blank" rel="noopener">❤️ Support MotoXsyndicate</a>
-</section>
+    <div class="corner-mark">MOTOXSYNDICATE</div>
+  </main>
 
-<section class="section-grid">
-    <article class="info-card">
-        <h3>Paint Downloads</h3>
-        <p>Free MX Bikes paint releases hosted directly on the MotoXsyndicate site.</p>
-        <a href="/paints/">Browse paints →</a>
-    </article>
-    <article class="info-card">
-        <h3>Server Hosting</h3>
-        <p>Future browser-based server hosting powered by the private MotoXsyndicate Server Manager.</p>
-        <a href="/server-manager/">Coming soon →</a>
-    </article>
-    <article class="info-card">
-        <h3>Community</h3>
-        <p>Join Discord for support, beta updates, custom paint requests, and future race/event announcements.</p>
-        <a href="https://discord.gg/2XXBNqXJwD" target="_blank" rel="noopener">Join Discord →</a>
-    </article>
-</section>
-</main>
-    <footer class="site-footer">
-        <div class="footer-brand">
-            <img src="/static/images/motoxsyndicate-wordmark.png?v=20260719c" alt="MotoXsyndicate" class="footer-logo">
-            <span>v0.9.0</span>
-        </div>
-        <div class="footer-links">
-            <a href="/paints/">Paints</a>
-            <a href="https://www.paypal.com/donate/?hosted_button_id=8RM4XA39HYTQS" target="_blank" rel="noopener">Support MotoXsyndicate</a>
-            <a href="https://discord.gg/2XXBNqXJwD" target="_blank" rel="noopener">Join Discord</a>
-            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=motoXsyndicate@gmail.com" target="_blank" rel="noopener">motoXsyndicate@gmail.com</a>
-        </div>
-    </footer>
+  <script src="/static/live-config.js?v=20260719c"></script>
+  <script src="/overlay/overlay.js?v=20260722a"></script>
 </body>
 </html>
