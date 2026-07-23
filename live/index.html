@@ -6,6 +6,7 @@
   <meta name="description" content="Watch official MotoXsyndicate MX Bikes race broadcasts, event information, schedules, and results live.">
   <title>MXS Live | MotoXsyndicate</title>
   <link rel="stylesheet" href="/static/style.css?v=20260719c">
+  <link rel="stylesheet" href="/static/live-timing.css?v=20260723a">
 </head>
 <body class="mxs-live-page">
   <header class="site-header">
@@ -139,7 +140,85 @@
       </div>
       <div id="sponsor-grid" class="sponsor-grid"></div>
     </section>
-  </main>
+  <section class="live-section-block live-timing-section" aria-labelledby="live-timing-title">
+  <div id="live-timing-shell" class="live-timing-shell">
+    <div class="live-timing-head">
+      <div class="live-timing-title">
+        <div>
+          <p class="eyebrow">POWERED BY CBR LIVE TIMING</p>
+          <h2 id="live-timing-title">LIVE <span>LEADERBOARD</span></h2>
+        </div>
+      </div>
+      <div class="timing-connection">
+        <span id="timing-connection-dot" class="timing-connection-dot" data-state="loading"></span>
+        <span id="timing-connection-text">CONNECTING</span>
+      </div>
+    </div>
+
+    <div class="timing-session-bar">
+      <div>
+        <span>TRACK</span>
+        <strong id="timing-track">Loading…</strong>
+      </div>
+      <div>
+        <span>SESSION</span>
+        <strong id="timing-session">—</strong>
+      </div>
+      <div>
+        <span>STATE</span>
+        <strong id="timing-state">—</strong>
+      </div>
+      <div>
+        <span>SESSION TIME</span>
+        <strong id="timing-session-timer">—</strong>
+      </div>
+      <div>
+        <span>RIDERS</span>
+        <strong id="timing-rider-count">0</strong>
+      </div>
+    </div>
+
+    <div class="timing-fastest">
+      <div class="timing-fastest-left">
+        <div class="timing-fastest-icon">⚡</div>
+        <div>
+          <small>FASTEST LAP</small>
+          <strong id="timing-fastest-rider">No timed laps</strong>
+        </div>
+      </div>
+      <div id="timing-fastest-lap" class="timing-fastest-time">—</div>
+    </div>
+
+    <div class="timing-table-wrap">
+      <table class="timing-table">
+        <thead>
+          <tr>
+            <th>POS</th>
+            <th>NO.</th>
+            <th>RIDER</th>
+            <th>LAPS</th>
+            <th>LAST</th>
+            <th>BEST</th>
+            <th>GAP</th>
+          </tr>
+        </thead>
+        <tbody id="timing-leaderboard-body">
+          <tr class="timing-empty-row">
+            <td colspan="7">Connecting to live timing…</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div id="timing-mobile-list" class="timing-mobile-list"></div>
+
+    <div class="timing-footer">
+      <span>Updates automatically every 2 seconds</span>
+      <span id="timing-updated">Connecting…</span>
+    </div>
+  </div>
+</section>
+</main>
 
   <footer class="site-footer">
     <div class="footer-brand">
@@ -155,5 +234,6 @@
 
   <script src="/static/live-config.js?v=20260719c"></script>
   <script src="/static/live.js?v=20260719c"></script>
+  <script src="/static/live-timing.js?v=20260723a"></script>
 </body>
 </html>

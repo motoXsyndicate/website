@@ -1,0 +1,323 @@
+/* MXS live timing panel */
+.live-timing-section {
+  margin-top: 28px;
+}
+
+.live-timing-shell {
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at top right, rgba(219, 20, 37, .18), transparent 38%),
+    linear-gradient(145deg, rgba(18,18,20,.98), rgba(7,7,9,.98));
+  box-shadow: 0 22px 70px rgba(0,0,0,.38);
+}
+
+.live-timing-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: flex-start;
+  padding: 24px;
+  border-bottom: 1px solid rgba(255,255,255,.09);
+}
+
+.live-timing-title {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.live-timing-title h2 {
+  margin: 2px 0 0;
+  font-size: clamp(1.7rem, 4vw, 2.7rem);
+  letter-spacing: -.04em;
+}
+
+.live-timing-title h2 span {
+  color: #e0182d;
+}
+
+.timing-connection {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.06);
+  font-size: .74rem;
+  font-weight: 900;
+  letter-spacing: .12em;
+  white-space: nowrap;
+}
+
+.timing-connection-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #777;
+  box-shadow: 0 0 0 4px rgba(119,119,119,.12);
+}
+
+.timing-connection-dot[data-state="online"] {
+  background: #25da72;
+  box-shadow: 0 0 0 4px rgba(37,218,114,.13), 0 0 18px rgba(37,218,114,.55);
+}
+
+.timing-connection-dot[data-state="error"] {
+  background: #e0182d;
+  box-shadow: 0 0 0 4px rgba(224,24,45,.13);
+}
+
+.timing-session-bar {
+  display: grid;
+  grid-template-columns: 1.3fr repeat(4, minmax(110px, .65fr));
+  gap: 1px;
+  background: rgba(255,255,255,.09);
+}
+
+.timing-session-bar > div {
+  min-width: 0;
+  padding: 17px 20px;
+  background: rgba(11,11,13,.97);
+}
+
+.timing-session-bar span,
+.timing-fastest small,
+.timing-rider-stats small {
+  display: block;
+  margin-bottom: 5px;
+  color: rgba(255,255,255,.48);
+  font-size: .68rem;
+  font-weight: 900;
+  letter-spacing: .13em;
+}
+
+.timing-session-bar strong {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: .98rem;
+}
+
+.timing-fastest {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: center;
+  padding: 18px 24px;
+  background: linear-gradient(90deg, rgba(224,24,45,.17), rgba(224,24,45,.03));
+  border-top: 1px solid rgba(255,255,255,.06);
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.timing-fastest-left {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.timing-fastest-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: #e0182d;
+  color: white;
+  font-weight: 1000;
+}
+
+.timing-fastest strong {
+  font-size: 1.22rem;
+}
+
+.timing-fastest-time {
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 1000;
+  font-variant-numeric: tabular-nums;
+}
+
+.timing-table-wrap {
+  overflow-x: auto;
+}
+
+.timing-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.timing-table th {
+  padding: 13px 16px;
+  color: rgba(255,255,255,.48);
+  background: rgba(255,255,255,.025);
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  text-align: left;
+  font-size: .68rem;
+  letter-spacing: .12em;
+}
+
+.timing-table td {
+  padding: 15px 16px;
+  border-bottom: 1px solid rgba(255,255,255,.065);
+}
+
+.timing-table tbody tr:hover {
+  background: rgba(255,255,255,.035);
+}
+
+.timing-table .leader-row {
+  background: linear-gradient(90deg, rgba(224,24,45,.13), transparent 50%);
+}
+
+.timing-pos {
+  width: 52px;
+  color: #fff;
+  font-size: 1.15rem;
+  font-weight: 1000;
+}
+
+.timing-number {
+  width: 75px;
+  color: #e0182d;
+  font-weight: 1000;
+}
+
+.timing-rider strong,
+.timing-rider span {
+  display: block;
+}
+
+.timing-rider span {
+  margin-top: 3px;
+  color: rgba(255,255,255,.47);
+  font-size: .78rem;
+}
+
+.timing-gap {
+  font-weight: 900;
+}
+
+.timing-empty-row td {
+  padding: 34px;
+  color: rgba(255,255,255,.54);
+  text-align: center;
+}
+
+.timing-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 11px 18px;
+  color: rgba(255,255,255,.42);
+  background: rgba(0,0,0,.2);
+  font-size: .72rem;
+}
+
+.timing-mobile-list {
+  display: none;
+}
+
+@media (max-width: 800px) {
+  .live-timing-head {
+    align-items: center;
+    padding: 20px;
+  }
+
+  .timing-session-bar {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .timing-session-bar > div:first-child {
+    grid-column: 1 / -1;
+  }
+
+  .timing-table-wrap {
+    display: none;
+  }
+
+  .timing-mobile-list {
+    display: grid;
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .timing-rider-card,
+  .timing-mobile-empty {
+    padding: 15px;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 13px;
+    background: rgba(255,255,255,.035);
+  }
+
+  .timing-rider-card.leader-card {
+    border-color: rgba(224,24,45,.45);
+    background: linear-gradient(135deg, rgba(224,24,45,.15), rgba(255,255,255,.03));
+  }
+
+  .timing-rider-card-top {
+    display: grid;
+    grid-template-columns: 38px 1fr auto;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .timing-rider-card-top strong,
+  .timing-rider-card-top span {
+    display: block;
+  }
+
+  .timing-rider-card-top span {
+    margin-top: 3px;
+    color: rgba(255,255,255,.46);
+    font-size: .72rem;
+  }
+
+  .timing-rider-card-top b {
+    color: rgba(255,255,255,.72);
+    font-size: .74rem;
+  }
+
+  .timing-mobile-position {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    background: #e0182d;
+    font-weight: 1000;
+  }
+
+  .timing-rider-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 13px;
+  }
+
+  .timing-rider-stats span {
+    padding: 9px;
+    border-radius: 9px;
+    background: rgba(0,0,0,.2);
+    font-size: .8rem;
+    font-weight: 800;
+  }
+}
+
+@media (max-width: 520px) {
+  .live-timing-head,
+  .timing-fastest {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .timing-session-bar {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .timing-footer {
+    flex-direction: column;
+  }
+}
