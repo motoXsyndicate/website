@@ -5,6 +5,8 @@
   const REFRESH_MS = 2000;
 
   const $ = (id) => document.getElementById(id);
+  let broadcastLive = false;
+  let requestInFlight = false;
 
   function safe(value, fallback = "—") {
     const text = String(value ?? "").trim();
@@ -38,11 +40,24 @@
       .trim();
   }
 
+  function isLiveStatus(value) {
+    const status = String(value ?? "")
+      .toLowerCase()
+      .replace(/[_-]+/g, " ")
+      .trim();
+    return status === "live" || status === "live now";
+  }
+
   function setConnection(state, label) {
     const dot = $("timing-connection-dot");
     const text = $("timing-connection-text");
     if (dot) dot.dataset.state = state;
     if (text) text.textContent = label;
+  }
+
+  function setTimingVisibility(isVisible) {
+    const section = document.querySelector(".live-timing-section");
+    if (section) section.hidden = !isVisible;
   }
 
   function renderEmpty(message) {
@@ -116,6 +131,20 @@
     });
   }
 
+  function updateMainRaceInfo(session) {
+    const trackName = cleanTrackName(session.trackName || session.eventName);
+    const sessionName = safe(session.sessionType, "WAITING");
+    const allowed = safe(session.allowedCategories, "");
+
+    const eventTrack = $("event-track");
+    const eventSession = $("event-session");
+    const eventClass = $("event-class");
+
+    if (eventTrack) eventTrack.textContent = trackName;
+    if (eventSession) eventSession.textContent = sessionName;
+    if (eventClass && allowed) eventClass.textContent = allowed;
+  }
+
   function renderTiming(payload) {
     if (!payload?.success || !payload?.data) {
       throw new Error(payload?.message || "Timing data unavailable");
@@ -131,6 +160,8 @@
     $("timing-rider-count").textContent = String(riders.filter((r) => r.isConnected !== false).length);
     $("timing-session-timer").textContent = formatTimer(session.sessionTimer);
     $("timing-updated").textContent = `Updated ${new Date(data.timestamp || Date.now()).toLocaleTimeString()}`;
+
+    updateMainRaceInfo(session);
 
     const bestRider = riders
       .filter((r) => Number(r.bestLapTime) > 0)
@@ -150,6 +181,9 @@
   }
 
   async function refreshTiming() {
+    if (!broadcastLive || requestInFlight) return;
+    requestInFlight = true;
+
     try {
       const response = await fetch(`${API_URL}?t=${Date.now()}`, {
         cache: "no-store",
@@ -163,9 +197,30 @@
       setConnection("error", "TIMING OFFLINE");
       $("timing-updated").textContent = "Unable to update";
       renderEmpty("Live timing is temporarily unavailable.");
+    } finally {
+      requestInFlight = false;
     }
   }
 
-  refreshTiming();
+  function applyBroadcastState(state) {
+    const nextLive = Boolean(state?.broadcastLive) || isLiveStatus(state?.status);
+    const changed = nextLive !== broadcastLive;
+    broadcastLive = nextLive;
+    setTimingVisibility(broadcastLive);
+
+    if (broadcastLive) {
+      if (changed) {
+        setConnection("loading", "CONNECTING");
+        renderEmpty("Connecting to live timing…");
+      }
+      refreshTiming();
+    }
+  }
+
+  window.addEventListener("mxs:live-config", (event) => {
+    applyBroadcastState(event.detail || {});
+  });
+
+  applyBroadcastState(window.MXS_LIVE_STATE || window.MXS_LIVE_CONFIG || {});
   setInterval(refreshTiming, REFRESH_MS);
 })();

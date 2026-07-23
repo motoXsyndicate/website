@@ -320,9 +320,25 @@
     tick(); countdownTimer = setInterval(tick, 1000);
   }
 
+  function broadcastIsLive(statusValue = cfg.status) {
+    const value = safeText(statusValue, "offline").toLowerCase().replace(/[_-]+/g, " ").trim();
+    return value === "live" || value === "live now";
+  }
+
+  function publishLiveState() {
+    const state = {
+      ...cfg,
+      broadcastLive: broadcastIsLive(),
+      updatedAt: Date.now()
+    };
+    window.MXS_LIVE_STATE = state;
+    window.dispatchEvent(new CustomEvent("mxs:live-config", { detail: state }));
+  }
+
   function render() {
     renderStatus(); renderText(); renderLinks(); renderTicker(); renderYouTube();
     renderSchedule(); renderNextEvent(); renderSponsors(); renderCountdown();
+    publishLiveState();
   }
 
   async function refreshFromSheet() {
