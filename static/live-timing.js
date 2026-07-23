@@ -150,9 +150,16 @@
       throw new Error(payload?.message || "Timing data unavailable");
     }
 
-    const data = payload.data;
-    const session = data.session || {};
-    const riders = Array.isArray(data.riders) ? data.riders : [];
+    // The Worker wraps the CBR response, and CBR also wraps its own payload.
+    // Support both { success, data: { session, riders } } and
+    // { success, data: { success, data: { session, riders } } }.
+    const outerData = payload.data;
+    const data = outerData?.data && (outerData.data.session || outerData.data.riders)
+      ? outerData.data
+      : outerData;
+
+    const session = data?.session || {};
+    const riders = Array.isArray(data?.riders) ? data.riders : [];
 
     $("timing-session").textContent = safe(session.sessionType, "WAITING");
     $("timing-state").textContent = safe(session.sessionState, "—");
