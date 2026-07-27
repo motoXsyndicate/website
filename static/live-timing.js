@@ -2,7 +2,7 @@
   "use strict";
 
   const API_URL = "https://mxs-live-api.motoxsyndicate.workers.dev/";
-  const REFRESH_MS = 2000;
+  const REFRESH_MS = 5000;
 
   const $ = (id) => document.getElementById(id);
 
