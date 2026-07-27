@@ -1,0 +1,9 @@
+Add new result flyer images to this folder.
+
+Recommended filenames:
+- rd4-washougal-250-results.jpg
+- rd4-washougal-450-results.jpg
+- rd4-championship-standings.jpg
+
+Then open results/index.html and copy the example "result-card" block.
+Update the image filename, round, event title, class, date, and alt text.

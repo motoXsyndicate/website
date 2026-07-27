@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Official MotoXsyndicate race results and championship flyers.">
+    <title>Race Results | MotoXsyndicate</title>
+    <link rel="stylesheet" href="/static/style.css?v=20260727">
+</head>
+<body>
+    <header class="site-header">
+        <nav class="nav-wrap">
+            <a class="brand-link" href="/">
+                <img src="/static/images/motoxsyndicate-wordmark.png?v=20260719c" alt="MotoXsyndicate" class="nav-logo wordmark-logo">
+            </a>
+            <button class="mobile-menu" onclick="document.body.classList.toggle('nav-open')" aria-label="Open navigation">☰</button>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/live/">MXS Live</a>
+                <a href="/paints/">Paints</a>
+                <a class="active-nav" href="/results/">Results</a>
+                <a href="/about/">About</a>
+                <a href="/contact/">Contact</a>
+                <a href="https://www.paypal.com/donate/?hosted_button_id=8RM4XA39HYTQS" target="_blank" rel="noopener">Support</a>
+                <a class="nav-discord" href="https://discord.gg/2XXBNqXJwD" target="_blank" rel="noopener">Discord</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="page-hero results-intro">
+            <div>
+                <p class="eyebrow">OFFICIAL RACE ARCHIVE</p>
+                <h1>Results</h1>
+                <p>Round results, podium finishes, and championship updates from MotoXsyndicate events.</p>
+            </div>
+            <span class="results-count">New flyers added after each round</span>
+        </section>
+
+        <!--
+        ADDING A NEW FLYER:
+        1. Put the image in /results/flyers/
+        2. Copy one result-card block below.
+        3. Change the image filename, round, event title, class, and date.
+
+        <section class="results-grid" aria-label="Race result flyers">
+            <article class="result-card">
+                <a href="/results/flyers/rd4-washougal-250-results.jpg" target="_blank">
+                    <img src="/results/flyers/rd4-washougal-250-results.jpg" alt="Round 4 Washougal 250 class results" loading="lazy">
+                    <div class="result-card-copy">
+                        <span>Round 4 · 250 Class</span>
+                        <h2>Washougal</h2>
+                        <p>Official round results · August 2, 2026</p>
+                    </div>
+                </a>
+            </article>
+        </section>
+        -->
+
+        <section class="results-empty">
+            <h2>Results are on the way.</h2>
+            <p>Official race flyers will appear here after each round. Check back after race night or join Discord for the latest announcements.</p>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-brand">
+            <img src="/static/images/motoxsyndicate-wordmark.png?v=20260719c" alt="MotoXsyndicate" class="footer-logo">
+            <span>v0.9.0</span>
+        </div>
+        <div class="footer-links">
+            <a href="/live/">MXS Live</a>
+            <a href="/results/">Results</a>
+            <a href="https://discord.gg/2XXBNqXJwD" target="_blank" rel="noopener">Join Discord</a>
+        </div>
+    </footer>
+</body>
+</html>
