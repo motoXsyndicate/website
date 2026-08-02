@@ -208,7 +208,7 @@
 
   function renderLinks() {
     setOptionalLink("registration-link", cfg.registrationUrl);
-    setOptionalLink("results-link", cfg.resultsUrl);
+    setOptionalLink("results-link", "/results/");
     const discord = $("discord-link");
     if (discord && validUrl(cfg.discordUrl)) discord.href = cfg.discordUrl;
   }
