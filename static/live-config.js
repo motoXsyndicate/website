@@ -38,7 +38,7 @@ window.MXS_LIVE_CONFIG = {
   scheduleNote: "Times shown in Central Time.",
 
   registrationUrl: "",
-  resultsUrl: "",
+  resultsUrl: "/results/",
   discordUrl: "https://discord.gg/2XXBNqXJwD",
 
   schedule: [

@@ -5,7 +5,7 @@
   let currentVideoId = null;
   const $ = (id) => document.getElementById(id);
   const safeText = (value, fallback = "") => String(value ?? "").trim() || fallback;
-  const validUrl = (value) => /^https?:\/\//i.test(safeText(value));
+  const validUrl = (value) => /^(https?:\/\/|\/)/i.test(safeText(value));
 
   function parseCsv(text) {
     const rows = [];
