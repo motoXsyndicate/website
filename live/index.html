@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Watch official MotoXsyndicate MX Bikes race broadcasts, event information, schedules, and results live.">
+  <meta name="description" content="Watch official MotoXsyndicate gaming broadcasts, live events, schedules, and results.">
   <title>MXS Live | MotoXsyndicate</title>
   <link rel="stylesheet" href="/static/style.css?v=20260719c">
 </head>
@@ -37,7 +37,7 @@
       <div>
         <p class="eyebrow">OFFICIAL MOTOXSYNDICATE BROADCAST</p>
         <h1>MXS <span>LIVE</span></h1>
-        <p id="broadcast-subtitle">Race coverage, event information, and results—all in one place.</p>
+        <p id="broadcast-subtitle">Live competition, event information, and results—all in one place.</p>
       </div>
       <div id="live-status" class="live-status" data-status="offline">OFF AIR</div>
     </section>
@@ -56,15 +56,15 @@
         </div>
 
         <div class="broadcast-tabs" role="tablist" aria-label="Broadcast panels">
-          <button class="broadcast-tab active" data-panel="race-info" type="button">Race Info</button>
+          <button class="broadcast-tab active" data-panel="race-info" type="button">Event Info</button>
           <button id="chat-tab" class="broadcast-tab" data-panel="live-chat" type="button" hidden>Live Chat</button>
         </div>
 
         <div id="race-info" class="broadcast-panel active">
           <div class="race-strip">
-            <div><span>CLASS</span><strong id="event-class">Open</strong></div>
-            <div><span>FORMAT</span><strong id="event-format">Two Motos</strong></div>
-            <div><span>SERVER</span><strong id="event-server">MXS Racing</strong></div>
+            <div><span>DIVISION</span><strong id="event-class">Open</strong></div>
+            <div><span>FORMAT</span><strong id="event-format">Competition</strong></div>
+            <div><span>SERVER</span><strong id="event-server">MXS Live</strong></div>
             <div><span>HOST</span><strong id="event-host">MotoXsyndicate</strong></div>
           </div>
         </div>
@@ -76,21 +76,21 @@
 
       <aside class="broadcast-info pro-broadcast-info">
         <p class="eyebrow">CURRENT EVENT</p>
-        <h2 id="event-title">MotoXsyndicate Outdoor Championship</h2>
-        <div class="event-detail"><span>Round</span><strong id="event-round">Next Broadcast</strong></div>
-        <div class="event-detail"><span>Track</span><strong id="event-track">TBA</strong></div>
-        <div class="event-detail"><span>Session</span><strong id="event-session">Race Coverage</strong></div>
+        <h2 id="event-title">MotoXsyndicate Live</h2>
+        <div class="event-detail"><span>Stage</span><strong id="event-round">Next Broadcast</strong></div>
+        <div class="event-detail"><span>Map / Track</span><strong id="event-track">TBA</strong></div>
+        <div class="event-detail"><span>Session</span><strong id="event-session">Live Coverage</strong></div>
         <div class="event-detail"><span>Date</span><strong id="event-date">To Be Announced</strong></div>
         <div class="event-detail"><span>Start Time</span><strong id="event-time">To Be Announced</strong></div>
 
         <div id="countdown-wrap" class="countdown-card" hidden>
-          <span>Gate drops in</span>
+          <span>Event starts in</span>
           <strong id="countdown">00:00:00</strong>
         </div>
 
         <div class="live-actions">
           <a id="youtube-link" class="btn primary full" href="#" target="_blank" rel="noopener" hidden>Open on YouTube</a>
-          <a id="registration-link" class="btn secondary full" href="#" target="_blank" rel="noopener" hidden>Race Registration</a>
+          <a id="registration-link" class="btn secondary full" href="#" target="_blank" rel="noopener" hidden>Event Registration</a>
           <a id="results-link" class="btn ghost full" href="/results/">Results & Standings</a>
           <a id="discord-link" class="btn ghost full" href="https://discord.gg/2XXBNqXJwD" target="_blank" rel="noopener">Join the Discord</a>
         </div>
@@ -100,7 +100,7 @@
     <section class="live-section-block">
       <div class="section-title-row">
         <div>
-          <p class="eyebrow">RACE NIGHT</p>
+          <p class="eyebrow">LIVE EVENT</p>
           <h2>Event schedule</h2>
         </div>
         <p id="schedule-note">Times shown in Central Time.</p>
@@ -114,18 +114,18 @@
         <h2>How to follow the action</h2>
         <div class="viewer-guide">
           <div><span>01</span><p><strong>Watch here.</strong> The YouTube broadcast is embedded directly on MotoXsyndicate.</p></div>
-          <div><span>02</span><p><strong>Join Discord.</strong> Get announcements, server information, and race-night support.</p></div>
-          <div><span>03</span><p><strong>Check results.</strong> Use the results button after each moto for official standings.</p></div>
+          <div><span>02</span><p><strong>Join Discord.</strong> Get announcements, server information, and event support.</p></div>
+          <div><span>03</span><p><strong>Check results.</strong> Use the results button after the competition for official standings.</p></div>
         </div>
       </article>
 
       <article class="live-section-block compact-block">
         <p class="eyebrow">NEXT BROADCAST</p>
-        <h2 id="next-event-title">More MXS racing coming soon</h2>
+        <h2 id="next-event-title">More MXS competition coming soon</h2>
         <p id="next-event-description">The next event will be announced through Discord and MotoXsyndicate.com.</p>
         <div class="next-event-meta">
           <span id="next-event-date">Date TBA</span>
-          <span id="next-event-track">Track TBA</span>
+          <span id="next-event-track">Map / Track TBA</span>
         </div>
       </article>
     </section>
@@ -154,7 +154,7 @@
     </div>
   </footer>
 
-  <script src="/static/live-config.js?v=20260719c"></script>
-  <script src="/static/live.js?v=20260802a"></script>
+  <script src="/static/live-config.js?v=20260803b"></script>
+  <script src="/static/live.js?v=20260803b"></script>
 </body>
 </html>

@@ -111,11 +111,11 @@
     assign("registrationUrl", "Registration URL", "Registration Link");
     assign("youtubeUrl", "YouTube URL", "YouTube Link", "Livestream URL");
     assign("status", "Broadcast Status", "Status");
-    assign("round", "Round");
-    assign("track", "Track");
+    assign("round", "Stage", "Round", "Match", "Game");
+    assign("track", "Map / Track", "Map", "Track", "Venue");
     assign("session", "Session");
-    assign("raceClass", "Race Class", "Class");
-    assign("raceFormat", "Race Format", "Format");
+    assign("raceClass", "Division", "Race Class", "Class");
+    assign("raceFormat", "Event Format", "Race Format", "Match Format", "Format");
     assign("server", "Server");
     assign("host", "Host");
     assign("subtitle", "Subtitle");
@@ -190,20 +190,20 @@
 
   function renderText() {
     setText("event-title", cfg.eventTitle, "MotoXsyndicate Live");
-    setText("broadcast-subtitle", cfg.subtitle, "Race coverage, event information, and results—all in one place.");
+    setText("broadcast-subtitle", cfg.subtitle, "Live competition, event information, and results—all in one place.");
     setText("event-round", cfg.round, "Next Broadcast");
     setText("event-track", cfg.track, "TBA");
-    setText("event-session", cfg.session, "Race Coverage");
-    setText("event-class", cfg.raceClass, "Open Class");
-    setText("event-format", cfg.raceFormat, "Two Motos");
-    setText("event-server", cfg.server, "MXS Racing");
+    setText("event-session", cfg.session, "Live Coverage");
+    setText("event-class", cfg.raceClass, "Open Division");
+    setText("event-format", cfg.raceFormat, "Competition");
+    setText("event-server", cfg.server, "MXS Live");
     setText("event-host", cfg.host, "MotoXsyndicate");
     setText("event-date", cfg.eventDate, "To Be Announced");
     setText("event-time", cfg.eventTime, "To Be Announced");
     setText("live-announcement", cfg.announcement, "Broadcast information coming soon.");
     setText("schedule-note", cfg.scheduleNote, "Times shown in Central Time.");
     const label = document.querySelector("#countdown-wrap span");
-    if (label) label.textContent = safeText(cfg.countdownLabel, "Gate drops in");
+    if (label) label.textContent = safeText(cfg.countdownLabel, "Event starts in");
   }
 
   function renderLinks() {
@@ -266,12 +266,12 @@
     if (!grid) return;
     grid.replaceChildren();
     const schedule = Array.isArray(cfg.schedule) ? cfg.schedule : [];
-    const items = schedule.length ? schedule : [{ time: "TBA", title: "Schedule coming soon", detail: "Check back before race night." }];
+    const items = schedule.length ? schedule : [{ time: "TBA", title: "Schedule coming soon", detail: "Check back before the event." }];
     items.forEach((item, index) => {
       const card = document.createElement("article");
       card.className = `schedule-card${index === 0 ? " featured" : ""}`;
       const time = document.createElement("span"); time.className = "schedule-time"; time.textContent = safeText(item.time, "TBA");
-      const title = document.createElement("h3"); title.textContent = safeText(item.title, "Race Session");
+      const title = document.createElement("h3"); title.textContent = safeText(item.title, "Event Session");
       const detail = document.createElement("p"); detail.textContent = safeText(item.detail, "Event details coming soon");
       card.append(time, title, detail); grid.append(card);
     });
@@ -279,10 +279,10 @@
 
   function renderNextEvent() {
     const next = cfg.nextEvent || {};
-    setText("next-event-title", next.title, "More MXS racing coming soon");
+    setText("next-event-title", next.title, "More MXS competition coming soon");
     setText("next-event-description", next.description, "The next event will be announced soon.");
     setText("next-event-date", next.date, "Date TBA");
-    setText("next-event-track", next.track, "Track TBA");
+    setText("next-event-track", next.track, "Map / Track TBA");
   }
 
   function renderSponsors() {
