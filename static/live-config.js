@@ -22,7 +22,7 @@ window.MXS_LIVE_CONFIG = {
   eventTitle: "MotoXsyndicate Live",
   subtitle: "Live competition, event information, and results—all in one place.",
   round: "Next Broadcast",
-  track: "Map / Track To Be Announced",
+  track: "Map To Be Announced",
   session: "Live Coverage",
   raceClass: "Open Division",
   raceFormat: "Competition",
@@ -49,7 +49,7 @@ window.MXS_LIVE_CONFIG = {
     title: "More MXS competition coming soon",
     description: "The next event will be announced through Discord and MotoXsyndicate.com.",
     date: "Date TBA",
-    track: "Map / Track TBA"
+    track: "Map TBA"
   },
 
   sponsors: [

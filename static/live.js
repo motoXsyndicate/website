@@ -282,7 +282,7 @@
     setText("next-event-title", next.title, "More MXS competition coming soon");
     setText("next-event-description", next.description, "The next event will be announced soon.");
     setText("next-event-date", next.date, "Date TBA");
-    setText("next-event-track", next.track, "Map / Track TBA");
+    setText("next-event-track", next.track, "Map TBA");
   }
 
   function renderSponsors() {
