@@ -13,7 +13,6 @@ Keep labels in column A and values in column B. Use these rows:
 A1  Event Name            B1  TEST Event
 A2  Race Date             B2  July 19, 2026
 A3  Race Time             B3  7:00 PM
-A4  Registration URL      B4  https://...
 A5  YouTube URL           B5  https://...
 A6  Round                 B6  Round 2
 A7  Track                 B7  ARL 2026 Southwick
@@ -29,7 +28,6 @@ A16 Server                B16 MXS Racing
 A17 Subtitle              B17 Race coverage, event information, and results—all in one place.
 A18 Announcement          B18 The next MXS broadcast will appear here.
 A19 Ticker                B19 Riders meeting begins at 6:45 PM CT.
-A20 Schedule Note         B20 Times shown in Central Time.
 
 BROADCAST STATUS VALUES
 -----------------------
@@ -38,23 +36,6 @@ STARTING SOON
 LIVE
 INTERMISSION
 BROADCAST ENDED
-
-OPTIONAL SCHEDULE ROWS
-----------------------
-A21 Schedule 1 Time       B21 6:00 PM
-A22 Schedule 1 Title      B22 Open Practice
-A23 Schedule 1 Detail     B23 Server opens for riders
-A24 Schedule 2 Time       B24 6:20 PM
-A25 Schedule 2 Title      B25 Qualifying
-A26 Schedule 2 Detail     B26 Timed qualifying session
-A27 Schedule 3 Time       B27 7:00 PM
-A28 Schedule 3 Title      B28 Moto 1
-A29 Schedule 3 Detail     B29 Championship points begin
-A30 Schedule 4 Time       B30 After Moto 1
-A31 Schedule 4 Title      B31 Moto 2
-A32 Schedule 4 Detail     B32 Final moto and overall results
-
-You can add Schedule 5 through Schedule 8 using the same pattern.
 
 OPTIONAL NEXT EVENT ROWS
 ------------------------
