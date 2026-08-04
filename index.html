@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MotoXsyndicate | Premium MX Bikes Paints & Race Events</title>
-    <link rel="stylesheet" href="/static/style.css?v=20260727">
+    <meta name="description" content="MotoXsyndicate is a competitive gaming community for live events, leagues, original content, results, MX Bikes, and Infinite Tournament Paintball.">
+    <title>MotoXsyndicate | Play. Compete. Syndicate.</title>
+    <link rel="stylesheet" href="/static/style.css?v=20260803-site">
 </head>
-<body>
+<body class="home-page">
     <header class="site-header">
         <nav class="nav-wrap">
             <a class="brand-link" href="/">
@@ -14,7 +15,7 @@
             </a>
             <button class="mobile-menu" onclick="document.body.classList.toggle('nav-open')" aria-label="Open navigation">&#9776;</button>
             <div class="nav-links">
-                <a href="/">Home</a>
+                <a class="active-nav" href="/">Home</a>
                 <a href="/live/">MXS Live</a>
                 <a href="/paints/">Paints</a>
                 <a href="/results/">Results</a>
@@ -29,18 +30,31 @@
     <main>
         <section class="brand-hero">
             <img class="hero-skull" src="/static/images/motoxsyndicate-skull.png?v=20260719c" alt="" aria-hidden="true">
-            <div class="brand-hero-bg" style="background-image:url('/static/images/yz250f-freedom-hero.png')"></div>
+            <div class="brand-hero-bg home-community-bg"></div>
             <div class="brand-hero-content">
                 <img class="hero-wordmark" src="/static/images/motoxsyndicate-wordmark.png?v=20260719c" alt="MotoXsyndicate">
-                <p class="eyebrow">MX BIKES GRAPHICS &bull; RACING &bull; COMMUNITY</p>
-                <h1>Premium MX Bikes paints built for riders.</h1>
-                <p class="hero-text">Download MotoXsyndicate graphics, follow official race results, and join the community behind the brand.</p>
+                <p class="eyebrow">PLAY &bull; COMPETE &bull; SYNDICATE</p>
+                <h1>One community. More ways to compete.</h1>
+                <p class="hero-text">MotoXsyndicate brings players together through organized competition, live broadcasts, original releases, and community-run leagues.</p>
                 <div class="hero-actions">
-                    <a class="btn primary" href="/paints/">Browse Paints</a>
-                    <a class="btn secondary" href="/results/">View Race Results</a>
+                    <a class="btn primary" href="/live/">Watch MXS Live</a>
+                    <a class="btn secondary" href="/results/">View Results</a>
                     <a class="btn ghost" href="https://discord.gg/2XXBNqXJwD" target="_blank" rel="noopener">Join Discord</a>
                 </div>
             </div>
+        </section>
+
+        <section class="home-game-grid" aria-label="MotoXsyndicate games">
+            <article class="home-game-card mx-game-card">
+                <p class="eyebrow">MX BIKES</p><h2>Race. Create. Stand out.</h2>
+                <p>Original paints, organized racing, live broadcasts, and official championship results.</p>
+                <div class="hero-actions"><a class="btn secondary" href="/paints/">Explore MX Bikes</a><a class="btn ghost" href="/results/#mx-bikes">MX Results</a></div>
+            </article>
+            <article class="home-game-card paintball-game-card">
+                <p class="eyebrow">INFINITE TOURNAMENT PAINTBALL</p><h2>Build a team. Take the field.</h2>
+                <p>Competitive 3v3 events, flexible team rosters, clear rules, and a growing league.</p>
+                <div class="hero-actions"><a class="btn primary" href="/paintball/">Explore Paintball</a><a class="btn ghost" href="/results/#paintball">Paintball Results</a></div>
+            </article>
         </section>
 
         <section class="section-title centered-title">
@@ -88,26 +102,14 @@
         <section class="brand-strip">
             <img src="/static/images/motoxsyndicate-skull.png?v=20260719c" alt="MotoXsyndicate skull logo">
             <div>
-                <p class="eyebrow">RIDE. RACE. SYNDICATE.</p>
+                <p class="eyebrow">PLAY. COMPETE. SYNDICATE.</p>
                 <h2>More than a download page.</h2>
-                <p>MotoXsyndicate is a home for MX Bikes paints, race events, official results, and community releases.</p>
+                <p>MotoXsyndicate is a shared home for players, creators, teams, live events, official results, and whatever game we take on next.</p>
                 <div class="hero-actions">
                     <a class="btn primary" href="https://discord.gg/2XXBNqXJwD" target="_blank" rel="noopener">Join Discord</a>
-                    <a class="btn secondary" href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;to=motoXsyndicate@gmail.com" target="_blank" rel="noopener">Open Gmail</a>
+                    <a class="btn secondary" href="/about/">About MXS</a>
                     <a class="btn support" href="https://www.paypal.com/donate/?hosted_button_id=8RM4XA39HYTQS" target="_blank" rel="noopener">Support the Project</a>
                 </div>
-            </div>
-        </section>
-
-        <section class="paintball-promo">
-            <div>
-                <p class="eyebrow">NEW COMPETITION</p>
-                <h2>MXS Paintball</h2>
-                <p>Competitive 3v3 tournaments, flexible team rosters, official standings, results, and community-run events under the MXS banner.</p>
-            </div>
-            <div class="hero-actions">
-                <a class="btn primary" href="/paintball/">Explore Paintball</a>
-                <a class="btn ghost" href="https://discord.gg/2XXBNqXJwD" target="_blank" rel="noopener">Join the League</a>
             </div>
         </section>
 
@@ -127,13 +129,13 @@
                 <a href="/paints/">Browse paints &rarr;</a>
             </article>
             <article class="info-card">
-                <h3>Race Results</h3>
-                <p>View official round flyers and championship updates from MotoXsyndicate events.</p>
+                <h3>Competition Results</h3>
+                <p>View official results and standings across MotoXsyndicate events and leagues.</p>
                 <a href="/results/">View results &rarr;</a>
             </article>
             <article class="info-card">
                 <h3>Community</h3>
-                <p>Join Discord for support, updates, custom paint requests, and race announcements.</p>
+                <p>Join Discord for support, updates, team finding, creative requests, and event announcements.</p>
                 <a href="https://discord.gg/2XXBNqXJwD" target="_blank" rel="noopener">Join Discord &rarr;</a>
             </article>
         </section>
