@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Official MotoXsyndicate race results and championship flyers.">
-    <title>Race Results | MotoXsyndicate</title>
-    <link rel="stylesheet" href="/static/style.css?v=20260727">
+    <meta name="description" content="Official MotoXsyndicate results and standings for MX Bikes racing and Infinite Tournament Paintball competition.">
+    <title>Results & Standings | MotoXsyndicate</title>
+    <link rel="stylesheet" href="/static/style.css?v=20260803-site">
 </head>
 <body>
     <header class="site-header">
@@ -31,12 +31,17 @@
     <main>
         <section class="page-hero results-intro">
             <div>
-                <p class="eyebrow">OFFICIAL RACE ARCHIVE</p>
+                <p class="eyebrow">OFFICIAL COMPETITION ARCHIVE</p>
                 <h1>Results</h1>
-                <p>Round results, podium finishes, and championship updates from MotoXsyndicate events.</p>
+                <p>Results, podium finishes, and standings from every MotoXsyndicate competition.</p>
             </div>
-            <span class="results-count">New flyers added after each round</span>
+            <span class="results-count">Updated after each event</span>
         </section>
+
+        <nav class="results-game-nav" aria-label="Result categories">
+            <a href="#mx-bikes">MX Bikes</a>
+            <a href="#paintball">Paintball</a>
+        </nav>
 
         
         <!--ADDING A NEW FLYER:
@@ -44,7 +49,10 @@
         2. Copy one result-card block below.
         3. Change the image filename, round, event title, class, and date.
         -->
-        <section class="results-grid" aria-label="Race result flyers">
+        <section id="mx-bikes" class="results-category-heading">
+            <div><p class="eyebrow">MX BIKES</p><h2>Championship results</h2></div><span>4 official flyers</span>
+        </section>
+        <section class="results-grid" aria-label="MX Bikes result flyers">
             <article class="result-card">
                 <a href="/results/flyers/rd4-washougal-450-ChampStandings.png" target="_blank">
                     <img src="/results/flyers/rd4-washougal-450-ChampStandings.png" alt="Round 4 Washougal 450 championship standings" loading="lazy">
@@ -88,6 +96,14 @@
                     </div>
                 </a>
             </article>
+        </section>
+        <section id="paintball" class="results-category-heading">
+            <div><p class="eyebrow">INFINITE TOURNAMENT PAINTBALL</p><h2>League results</h2></div><span>Season 1</span>
+        </section>
+        <section class="results-empty paintball-results-empty">
+            <p class="eyebrow">COMING WITH THE FIRST EVENT</p><h2>Paintball standings will live here.</h2>
+            <p>Match results, event winners, and season standings will be added after competition begins.</p>
+            <div class="hero-actions"><a class="btn primary" href="/paintball/">Explore the League</a><a class="btn ghost" href="https://discord.gg/2XXBNqXJwD" target="_blank" rel="noopener">Get League Updates</a></div>
         </section>
         
 
