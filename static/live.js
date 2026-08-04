@@ -108,7 +108,6 @@
     assign("eventTitle", "Event Name", "Event Title");
     assign("eventDate", "Race Date", "Event Date");
     assign("eventTime", "Race Time", "Start Time", "Event Time");
-    assign("registrationUrl", "Registration URL", "Registration Link");
     assign("youtubeUrl", "YouTube URL", "YouTube Link", "Livestream URL");
     assign("status", "Broadcast Status", "Status");
     assign("round", "Stage", "Round", "Match", "Game");
@@ -121,7 +120,6 @@
     assign("subtitle", "Subtitle");
     assign("announcement", "Announcement", "Broadcast Announcement");
     assign("ticker", "Ticker", "Ticker Text");
-    assign("scheduleNote", "Schedule Note");
     assign("resultsUrl", "Results URL", "Results Link");
     assign("discordUrl", "Discord URL", "Discord Link");
     assign("countdownLabel", "Countdown Label");
@@ -129,15 +127,6 @@
     next.startTime = next.eventDate && next.eventTime
       ? centralDateTimeToIso(next.eventDate, next.eventTime)
       : next.startTime || defaults.startTime || "";
-
-    const schedule = [];
-    for (let i = 1; i <= 8; i += 1) {
-      const time = get(`Schedule ${i} Time`);
-      const title = get(`Schedule ${i} Title`);
-      const detail = get(`Schedule ${i} Detail`);
-      if (time || title || detail) schedule.push({ time, title, detail });
-    }
-    if (schedule.length) next.schedule = schedule;
 
     const nextEvent = { ...(next.nextEvent || defaults.nextEvent || {}) };
     const nextTitle = get("Next Event Title");
@@ -201,13 +190,11 @@
     setText("event-date", cfg.eventDate, "To Be Announced");
     setText("event-time", cfg.eventTime, "To Be Announced");
     setText("live-announcement", cfg.announcement, "Broadcast information coming soon.");
-    setText("schedule-note", cfg.scheduleNote, "Times shown in Central Time.");
     const label = document.querySelector("#countdown-wrap span");
     if (label) label.textContent = safeText(cfg.countdownLabel, "Event starts in");
   }
 
   function renderLinks() {
-    setOptionalLink("registration-link", cfg.registrationUrl);
     setOptionalLink("results-link", "/results/");
     const discord = $("discord-link");
     if (discord && validUrl(cfg.discordUrl)) discord.href = cfg.discordUrl;
@@ -261,22 +248,6 @@
     }
   }
 
-  function renderSchedule() {
-    const grid = $("schedule-grid");
-    if (!grid) return;
-    grid.replaceChildren();
-    const schedule = Array.isArray(cfg.schedule) ? cfg.schedule : [];
-    const items = schedule.length ? schedule : [{ time: "TBA", title: "Schedule coming soon", detail: "Check back before the event." }];
-    items.forEach((item, index) => {
-      const card = document.createElement("article");
-      card.className = `schedule-card${index === 0 ? " featured" : ""}`;
-      const time = document.createElement("span"); time.className = "schedule-time"; time.textContent = safeText(item.time, "TBA");
-      const title = document.createElement("h3"); title.textContent = safeText(item.title, "Event Session");
-      const detail = document.createElement("p"); detail.textContent = safeText(item.detail, "Event details coming soon");
-      card.append(time, title, detail); grid.append(card);
-    });
-  }
-
   function renderNextEvent() {
     const next = cfg.nextEvent || {};
     setText("next-event-title", next.title, "More MXS competition coming soon");
@@ -322,7 +293,7 @@
 
   function render() {
     renderStatus(); renderText(); renderLinks(); renderTicker(); renderYouTube();
-    renderSchedule(); renderNextEvent(); renderSponsors(); renderCountdown();
+    renderNextEvent(); renderSponsors(); renderCountdown();
   }
 
   async function refreshFromSheet() {

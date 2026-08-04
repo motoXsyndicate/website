@@ -35,15 +35,8 @@ window.MXS_LIVE_CONFIG = {
   announcement: "The next MXS broadcast will appear here.",
   countdownLabel: "Event starts in",
   ticker: "",
-  scheduleNote: "Times shown in Central Time.",
-
-  registrationUrl: "",
   resultsUrl: "/results/",
   discordUrl: "https://discord.gg/2XXBNqXJwD",
-
-  schedule: [
-    { time: "TBA", title: "Event schedule coming soon", detail: "Check back before the broadcast" }
-  ],
 
   nextEvent: {
     title: "More MXS competition coming soon",
