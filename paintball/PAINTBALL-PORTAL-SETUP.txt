@@ -1,0 +1,93 @@
+MXS PAINTBALL — CLOUDFLARE PLAYER PORTAL SETUP
+================================================
+
+The website, private API, player check-in, organizer dashboard, and random team
+generator are built. Complete these Cloudflare and Discord steps once.
+
+IMPORTANT DEPLOYMENT REQUIREMENT
+--------------------------------
+The Pages project must deploy from this GitHub repository or through Wrangler.
+Cloudflare dashboard Direct Upload does not support Pages Functions.
+
+1. CREATE THE D1 DATABASE
+-------------------------
+1. Sign in to Cloudflare.
+2. Open Storage & Databases > D1 SQL Database.
+3. Create a database named: mxs-paintball
+4. Open its Console.
+5. Copy and run the complete contents of /paintball/d1-schema.sql.
+
+2. CONNECT D1 TO THE EXISTING PAGES PROJECT
+--------------------------------------------
+1. Open Workers & Pages and select the MotoXsyndicate Pages project.
+2. Open Settings > Bindings.
+3. Add a D1 database binding.
+4. Variable name must be exactly: PAINTBALL_DB
+5. Select the mxs-paintball database.
+6. Save and redeploy the Pages project.
+
+Add the binding to both Production and Preview if the portal will be tested on
+Cloudflare preview deployments. Preview may use a separate test D1 database.
+
+3. CREATE THE DISCORD APPLICATION
+---------------------------------
+1. Open https://discord.com/developers/applications
+2. Create a New Application named MXS Paintball.
+3. Open OAuth2.
+4. Add this Redirect URL:
+   https://www.motoxsyndicate.com/api/paintball/auth/callback
+5. Copy the Client ID and Client Secret.
+
+4. ADD ENCRYPTED CLOUDFLARE SECRETS
+-----------------------------------
+1. Open the MotoXsyndicate Pages project.
+2. Open Settings > Variables and Secrets.
+3. Add DISCORD_CLIENT_ID with the Discord Client ID.
+4. Add DISCORD_CLIENT_SECRET with the Discord Client Secret.
+5. Encrypt the Client Secret.
+6. Save and redeploy the Pages project.
+
+Add matching values to Preview only if Discord has the exact preview callback
+URL added to its Redirects. Production alone is enough for the live portal.
+
+5. MAKE YOUR ACCOUNT THE FIRST ORGANIZER
+----------------------------------------
+1. Visit https://www.motoxsyndicate.com/paintball/register/
+2. Sign in once with your Discord account.
+3. In Cloudflare, open the mxs-paintball D1 database and browse pb_users.
+4. Copy the id value from your user row.
+5. Open the D1 Console and run, replacing YOUR_USER_ID:
+
+   INSERT INTO pb_admins (user_id) VALUES ('YOUR_USER_ID');
+
+6. Open https://www.motoxsyndicate.com/paintball/admin/
+
+PLAYER FLOW
+-----------
+1. Player selects Continue with Discord.
+2. Player enters an in-game name and accepts the rulebook once.
+3. On event night, the player selects Check in.
+4. Staff closes check-in and generates random teams.
+5. Staff reviews or rerolls the teams and publishes them.
+6. Each player sees their team assignment in the player portal.
+
+ORGANIZER FLOW
+--------------
+1. Create the pickup night in /paintball/admin/.
+2. Open check-in.
+3. Close check-in at the deadline.
+4. Select Generate to create random teams of three.
+5. Select Generate again if a reroll is necessary.
+6. Select Publish when the assignments are final.
+
+Players beyond the last complete group of three become rotating reserves.
+At least six checked-in players are required to generate official teams.
+
+SECURITY NOTES
+--------------
+- The Discord Client Secret exists only inside encrypted Cloudflare settings.
+- Login sessions are random tokens; only SHA-256 hashes are stored in D1.
+- Organizer routes verify the signed-in account against pb_admins.
+- Normal players cannot create events, generate teams, or publish assignments.
+- _routes.json limits Pages Functions to /api/paintball/* so normal static page
+  requests do not consume the Workers request allowance.
