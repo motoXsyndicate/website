@@ -1,0 +1,6 @@
+# Generated local artifacts and temporary tool files
+/output/
+/outputs/
+/tmp/
+/code.txt
+/track-tools/
