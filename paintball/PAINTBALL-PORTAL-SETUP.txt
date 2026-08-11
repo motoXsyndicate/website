@@ -76,12 +76,12 @@ ORGANIZER FLOW
 1. Create the pickup night in /paintball/admin/.
 2. Open check-in.
 3. Close check-in at the deadline.
-4. Select Generate to create random teams of three.
-5. Select Generate again if a reroll is necessary.
+4. Choose 4v4 or 5v5 from the team-size control.
+5. Select Generate Teams. Change the format and regenerate if necessary.
 6. Select Publish when the assignments are final.
 
-Players beyond the last complete group of three become rotating reserves.
-At least six checked-in players are required to generate official teams.
+Players beyond the last complete team become rotating reserves.
+At least eight checked-in players are required for 4v4 and ten for 5v5.
 
 SECURITY NOTES
 --------------

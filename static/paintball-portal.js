@@ -111,8 +111,11 @@
     try {
       const {events} = await api("admin/events");
       const body = $("events-body");
-      body.innerHTML = events.map((event) => `<tr><td>${escapeHtml(event.title)}<br><span class="portal-muted">${escapeHtml(formatDate(event.starts_at))}</span></td><td>${escapeHtml(event.status.replaceAll("_", " "))}</td><td>${event.check_in_count}</td><td><div class="portal-actions"><button class="btn ghost admin-event-action" data-id="${event.id}" data-action="open">Open</button><button class="btn ghost admin-event-action" data-id="${event.id}" data-action="close">Close</button><button class="btn secondary admin-event-action" data-id="${event.id}" data-action="generate">Generate</button><button class="btn primary admin-event-action" data-id="${event.id}" data-action="publish">Publish</button><button class="btn ghost admin-event-action" data-id="${event.id}" data-action="view">View</button></div></td></tr>`).join("") || '<tr><td colspan="4">No events created.</td></tr>';
-      document.querySelectorAll(".admin-event-action").forEach((button) => button.addEventListener("click", () => adminAction(button.dataset.id, button.dataset.action)));
+      body.innerHTML = events.map((event) => `<tr><td>${escapeHtml(event.title)}<br><span class="portal-muted">${escapeHtml(formatDate(event.starts_at))}</span></td><td>${escapeHtml(event.status.replaceAll("_", " "))}</td><td>${event.check_in_count}</td><td><div class="portal-actions"><button class="btn ghost admin-event-action" data-id="${event.id}" data-action="open">Open</button><button class="btn ghost admin-event-action" data-id="${event.id}" data-action="close">Close</button><select class="portal-team-size" data-event-id="${event.id}" aria-label="Players per team"><option value="4">4v4</option><option value="5">5v5</option><option value="6">6v6 override</option></select><button class="btn secondary admin-event-action" data-id="${event.id}" data-action="generate">Generate Teams</button><button class="btn primary admin-event-action" data-id="${event.id}" data-action="publish">Publish</button><button class="btn ghost admin-event-action" data-id="${event.id}" data-action="view">View</button></div></td></tr>`).join("") || '<tr><td colspan="4">No events created.</td></tr>';
+      document.querySelectorAll(".admin-event-action").forEach((button) => button.addEventListener("click", () => {
+        const teamSize = Number(document.querySelector(`.portal-team-size[data-event-id="${button.dataset.id}"]`)?.value || 0);
+        adminAction(button.dataset.id, button.dataset.action, teamSize);
+      }));
     } catch (error) { setStatus(error.message, "error"); }
   }
 
@@ -123,12 +126,12 @@
     } catch (error) { setStatus(error.message, "error"); }
   }
 
-  async function adminAction(eventId, action) {
+  async function adminAction(eventId, action, teamSize = null) {
     if (action === "view") return loadEventTeams(eventId);
     setStatus("Updating the event…");
     try {
-      await api("admin/action", {method:"POST", body:JSON.stringify({eventId, action})});
-      setStatus(action === "generate" ? "Teams generated. Review them before publishing." : "Event updated.", "success");
+      await api("admin/action", {method:"POST", body:JSON.stringify({eventId, action, teamSize})});
+      setStatus(action === "generate" ? `Random ${teamSize}v${teamSize} teams generated. Change the format and generate again if needed.` : "Event updated.", "success");
       await Promise.all([loadAdminEvents(), loadEventTeams(eventId)]);
     } catch (error) { setStatus(error.message, "error"); }
   }

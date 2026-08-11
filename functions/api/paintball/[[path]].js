@@ -198,7 +198,7 @@ function shuffle(players) {
 
 async function adminAction(request, env) {
   await requireAdmin(request, env);
-  const {eventId,action} = await body(request);
+  const {eventId,action,teamSize} = await body(request);
   const event = await env.PAINTBALL_DB.prepare("SELECT * FROM pb_events WHERE id=?").bind(eventId).first();
   if (!event) return error("Event not found.",404);
   if (["open","close","publish"].includes(action)) {
@@ -209,17 +209,18 @@ async function adminAction(request, env) {
   }
   if (action !== "generate") return error("Unknown organizer action.");
   if (!["check_in_closed","teams_generated"].includes(event.status)) return error("Close check-in before generating teams.");
+  if (!Number.isInteger(teamSize) || teamSize < 4 || teamSize > 6) return error("Choose a team size between 4 and 6 players.");
   const checked = await env.PAINTBALL_DB.prepare("SELECT user_id FROM pb_check_ins WHERE event_id=?").bind(eventId).all();
-  if (checked.results.length < 6) return error("At least six checked-in players are required.");
+  if (checked.results.length < teamSize * 2) return error(`At least ${teamSize * 2} checked-in players are required for ${teamSize}v${teamSize}.`);
   const players = shuffle(checked.results);
-  const fullCount = Math.floor(players.length / 3) * 3;
+  const fullCount = Math.floor(players.length / teamSize) * teamSize;
   const generationRow = await env.PAINTBALL_DB.prepare("SELECT COALESCE(MAX(generation),0)+1 AS generation FROM pb_assignments WHERE event_id=?").bind(eventId).first();
   const generation = generationRow.generation;
   const statements = [env.PAINTBALL_DB.prepare("DELETE FROM pb_assignments WHERE event_id=?").bind(eventId)];
-  players.forEach((player,index) => statements.push(env.PAINTBALL_DB.prepare("INSERT INTO pb_assignments(event_id,user_id,team_number,is_reserve,generation,assigned_at) VALUES (?,?,?,?,?,?)").bind(eventId,player.user_id,index < fullCount ? Math.floor(index/3)+1 : null,index >= fullCount ? 1 : 0,generation,new Date().toISOString())));
+  players.forEach((player,index) => statements.push(env.PAINTBALL_DB.prepare("INSERT INTO pb_assignments(event_id,user_id,team_number,is_reserve,generation,assigned_at) VALUES (?,?,?,?,?,?)").bind(eventId,player.user_id,index < fullCount ? Math.floor(index/teamSize)+1 : null,index >= fullCount ? 1 : 0,generation,new Date().toISOString())));
   statements.push(env.PAINTBALL_DB.prepare("UPDATE pb_events SET status='teams_generated' WHERE id=?").bind(eventId));
   await env.PAINTBALL_DB.batch(statements);
-  return json({ok:true,playerCount:players.length,generation});
+  return json({ok:true,playerCount:players.length,generation,teamSize});
 }
 
 async function adminTeams(request, env) {
