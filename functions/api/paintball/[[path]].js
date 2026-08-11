@@ -353,18 +353,18 @@ export async function onRequest(context) {
   try {
     requireBindings(env);
     const route = routeFor(request);
-    if (route === "auth/login" && request.method === "GET") return discordLogin(request,env);
-    if (route === "auth/callback" && request.method === "GET") return discordCallback(request,env);
-    if (route === "auth/logout" && request.method === "POST") return logout(request,env);
-    if (route === "me" && request.method === "GET") return getMe(request,env);
-    if (route === "profile" && request.method === "POST") return saveProfile(request,env);
-    if (route === "event/current" && request.method === "GET") return currentEvent(request,env);
-    if (route === "check-in" && request.method === "POST") return checkIn(request,env);
-    if (route === "admin/events" && ["GET","POST"].includes(request.method)) return adminEvents(request,env);
-    if (route === "admin/action" && request.method === "POST") return adminAction(request,env);
-    if (route === "admin/teams" && request.method === "GET") return adminTeams(request,env);
-    if (route === "admin/players" && request.method === "GET") return adminPlayers(request,env);
-    if (route === "admin/bracket" && ["GET","POST"].includes(request.method)) return adminBracket(request,env);
+    if (route === "auth/login" && request.method === "GET") return await discordLogin(request,env);
+    if (route === "auth/callback" && request.method === "GET") return await discordCallback(request,env);
+    if (route === "auth/logout" && request.method === "POST") return await logout(request,env);
+    if (route === "me" && request.method === "GET") return await getMe(request,env);
+    if (route === "profile" && request.method === "POST") return await saveProfile(request,env);
+    if (route === "event/current" && request.method === "GET") return await currentEvent(request,env);
+    if (route === "check-in" && request.method === "POST") return await checkIn(request,env);
+    if (route === "admin/events" && ["GET","POST"].includes(request.method)) return await adminEvents(request,env);
+    if (route === "admin/action" && request.method === "POST") return await adminAction(request,env);
+    if (route === "admin/teams" && request.method === "GET") return await adminTeams(request,env);
+    if (route === "admin/players" && request.method === "GET") return await adminPlayers(request,env);
+    if (route === "admin/bracket" && ["GET","POST"].includes(request.method)) return await adminBracket(request,env);
     return error("Not found.",404);
   } catch (caught) {
     return error(caught.message || "Unexpected server error.", caught.status || 500);
