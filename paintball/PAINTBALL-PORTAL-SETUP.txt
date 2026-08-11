@@ -78,7 +78,10 @@ ORGANIZER FLOW
 3. Close check-in at the deadline.
 4. Choose 4v4 or 5v5 from the team-size control.
 5. Select Generate Teams. Change the format and regenerate if necessary.
-6. Select Publish when the assignments are final.
+6. Select Create Tournament Bracket after the teams are final.
+7. Enter each score; winners and losing teams advance to the correct matches.
+8. Complete the championship and placement matches to rank every team.
+9. Select Publish when the team assignments are ready for players.
 
 Players beyond the last complete team become rotating reserves.
 At least eight checked-in players are required for 4v4 and ten for 5v5.
@@ -91,3 +94,10 @@ SECURITY NOTES
 - Normal players cannot create events, generate teams, or publish assignments.
 - _routes.json limits Pages Functions to /api/paintball/* so normal static page
   requests do not consume the Workers request allowance.
+
+BRACKET UPGRADE FOR AN EXISTING DATABASE
+----------------------------------------
+If the original seven-table schema was already installed, run the complete
+contents of /paintball/d1-bracket-migration.sql in the D1 Console once before
+deploying the bracket-enabled website. This adds pb_bracket_matches and
+pb_placements without changing existing players, events, or registrations.

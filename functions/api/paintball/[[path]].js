@@ -216,7 +216,11 @@ async function adminAction(request, env) {
   const fullCount = Math.floor(players.length / teamSize) * teamSize;
   const generationRow = await env.PAINTBALL_DB.prepare("SELECT COALESCE(MAX(generation),0)+1 AS generation FROM pb_assignments WHERE event_id=?").bind(eventId).first();
   const generation = generationRow.generation;
-  const statements = [env.PAINTBALL_DB.prepare("DELETE FROM pb_assignments WHERE event_id=?").bind(eventId)];
+  const statements = [
+    env.PAINTBALL_DB.prepare("DELETE FROM pb_placements WHERE event_id=?").bind(eventId),
+    env.PAINTBALL_DB.prepare("DELETE FROM pb_bracket_matches WHERE event_id=?").bind(eventId),
+    env.PAINTBALL_DB.prepare("DELETE FROM pb_assignments WHERE event_id=?").bind(eventId)
+  ];
   players.forEach((player,index) => statements.push(env.PAINTBALL_DB.prepare("INSERT INTO pb_assignments(event_id,user_id,team_number,is_reserve,generation,assigned_at) VALUES (?,?,?,?,?,?)").bind(eventId,player.user_id,index < fullCount ? Math.floor(index/teamSize)+1 : null,index >= fullCount ? 1 : 0,generation,new Date().toISOString())));
   statements.push(env.PAINTBALL_DB.prepare("UPDATE pb_events SET status='teams_generated' WHERE id=?").bind(eventId));
   await env.PAINTBALL_DB.batch(statements);
@@ -236,6 +240,114 @@ async function adminPlayers(request, env) {
   return json({players:result.results});
 }
 
+function bracketSeedOrder(size) {
+  let order = [1, 2];
+  for (let current = 4; current <= size; current *= 2) {
+    order = order.flatMap((seed) => [seed, current + 1 - seed]);
+  }
+  return order;
+}
+
+async function createBracket(env, eventId) {
+  const assignmentRows = await env.PAINTBALL_DB.prepare("SELECT DISTINCT team_number FROM pb_assignments WHERE event_id=? AND is_reserve=0 ORDER BY team_number").bind(eventId).all();
+  const teams = assignmentRows.results.map((row) => row.team_number);
+  if (teams.length < 2) throw new Error("Generate at least two complete teams before creating a bracket.");
+  if (![2,4,8].includes(teams.length)) throw new Error("Full placement brackets require exactly 2, 4, or 8 teams. Adjust the team size or reserve pool, then generate again.");
+  const matches = [];
+  const add = (round,number,label,team1=null,team2=null,placementWinner=null,placementLoser=null) => {
+    const match = {id:crypto.randomUUID(),round,number,label,team1,team2,status:team1 && team2 ? "ready" : "pending",nextId:null,nextSlot:null,loserNextId:null,loserNextSlot:null,placementWinner,placementLoser};
+    matches.push(match); return match;
+  };
+  const connect = (source,winnerMatch,winnerSlot,loserMatch=null,loserSlot=null) => {
+    source.nextId = winnerMatch?.id || null; source.nextSlot = winnerSlot;
+    source.loserNextId = loserMatch?.id || null; source.loserNextSlot = loserSlot;
+  };
+  let rounds = 1;
+  if (teams.length === 2) {
+    add(1,1,"Championship",teams[0],teams[1],1,2);
+  } else if (teams.length === 4) {
+    rounds = 2;
+    const semi1 = add(1,1,"Semifinal 1",teams[0],teams[3]);
+    const semi2 = add(1,2,"Semifinal 2",teams[1],teams[2]);
+    const final = add(2,1,"Championship",null,null,1,2);
+    const third = add(2,2,"Third Place",null,null,3,4);
+    connect(semi1,final,1,third,1); connect(semi2,final,2,third,2);
+  } else {
+    rounds = 3;
+    const quarterfinals = [
+      add(1,1,"Quarterfinal 1",teams[0],teams[7]), add(1,2,"Quarterfinal 2",teams[3],teams[4]),
+      add(1,3,"Quarterfinal 3",teams[1],teams[6]), add(1,4,"Quarterfinal 4",teams[2],teams[5])
+    ];
+    const championshipSemis = [add(2,1,"Championship Semifinal 1"),add(2,2,"Championship Semifinal 2")];
+    const consolationSemis = [add(2,3,"Consolation Semifinal 1"),add(2,4,"Consolation Semifinal 2")];
+    quarterfinals.forEach((match,index) => connect(match,championshipSemis[Math.floor(index/2)],index%2+1,consolationSemis[Math.floor(index/2)],index%2+1));
+    const final = add(3,1,"Championship",null,null,1,2);
+    const third = add(3,2,"Third Place",null,null,3,4);
+    const fifth = add(3,3,"Fifth Place",null,null,5,6);
+    const seventh = add(3,4,"Seventh Place",null,null,7,8);
+    connect(championshipSemis[0],final,1,third,1); connect(championshipSemis[1],final,2,third,2);
+    connect(consolationSemis[0],fifth,1,seventh,1); connect(consolationSemis[1],fifth,2,seventh,2);
+  }
+  const now = new Date().toISOString();
+  const statements = [
+    env.PAINTBALL_DB.prepare("DELETE FROM pb_placements WHERE event_id=?").bind(eventId),
+    env.PAINTBALL_DB.prepare("DELETE FROM pb_bracket_matches WHERE event_id=?").bind(eventId)
+  ];
+  matches.forEach((match) => {
+    statements.push(env.PAINTBALL_DB.prepare(`INSERT INTO pb_bracket_matches(id,event_id,round_number,match_number,team1_number,team2_number,status,next_match_id,next_slot,loser_next_match_id,loser_next_slot,label,placement_winner,placement_loser,created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).bind(match.id,eventId,match.round,match.number,match.team1,match.team2,match.status,match.nextId,match.nextSlot,match.loserNextId,match.loserNextSlot,match.label,match.placementWinner,match.placementLoser,now));
+  });
+  await env.PAINTBALL_DB.batch(statements);
+  return {teamCount:teams.length,rounds};
+}
+
+async function bracketData(env, eventId) {
+  const result = await env.PAINTBALL_DB.prepare("SELECT * FROM pb_bracket_matches WHERE event_id=? ORDER BY round_number,match_number").bind(eventId).all();
+  return result.results;
+}
+
+async function placementData(env, eventId) {
+  const result = await env.PAINTBALL_DB.prepare("SELECT team_number,place FROM pb_placements WHERE event_id=? ORDER BY place").bind(eventId).all();
+  return result.results;
+}
+
+async function adminBracket(request, env) {
+  await requireAdmin(request, env);
+  if (request.method === "GET") {
+    const eventId = new URL(request.url).searchParams.get("eventId");
+    return json({matches:await bracketData(env,eventId),placements:await placementData(env,eventId)});
+  }
+  const data = await body(request);
+  if (data.action === "create") {
+    const created = await createBracket(env,data.eventId);
+    return json({ok:true,...created,matches:await bracketData(env,data.eventId),placements:[]});
+  }
+  if (data.action !== "result") return error("Unknown bracket action.");
+  const match = await env.PAINTBALL_DB.prepare("SELECT * FROM pb_bracket_matches WHERE id=? AND event_id=?").bind(data.matchId,data.eventId).first();
+  if (!match) return error("Bracket match not found.",404);
+  if (match.status === "completed") return error("This match result is already final.");
+  if (!match.team1_number || !match.team2_number) return error("Both teams must be determined before entering a result.");
+  const score1 = Number(data.score1);
+  const score2 = Number(data.score2);
+  if (!Number.isInteger(score1) || !Number.isInteger(score2) || score1 < 0 || score2 < 0 || score1 === score2) return error("Enter two different, non-negative whole-number scores.");
+  const winner = score1 > score2 ? match.team1_number : match.team2_number;
+  const loser = score1 > score2 ? match.team2_number : match.team1_number;
+  const statements = [env.PAINTBALL_DB.prepare("UPDATE pb_bracket_matches SET score1=?,score2=?,winner_team_number=?,status='completed' WHERE id=?").bind(score1,score2,winner,match.id)];
+  if (match.next_match_id) {
+    const column = match.next_slot === 1 ? "team1_number" : "team2_number";
+    statements.push(env.PAINTBALL_DB.prepare(`UPDATE pb_bracket_matches SET ${column}=? WHERE id=?`).bind(winner,match.next_match_id));
+  }
+  if (match.loser_next_match_id) {
+    const column = match.loser_next_slot === 1 ? "team1_number" : "team2_number";
+    statements.push(env.PAINTBALL_DB.prepare(`UPDATE pb_bracket_matches SET ${column}=? WHERE id=?`).bind(loser,match.loser_next_match_id));
+  }
+  if (match.placement_winner) statements.push(env.PAINTBALL_DB.prepare("INSERT OR REPLACE INTO pb_placements(event_id,team_number,place,created_at) VALUES (?,?,?,?)").bind(data.eventId,winner,match.placement_winner,new Date().toISOString()));
+  if (match.placement_loser) statements.push(env.PAINTBALL_DB.prepare("INSERT OR REPLACE INTO pb_placements(event_id,team_number,place,created_at) VALUES (?,?,?,?)").bind(data.eventId,loser,match.placement_loser,new Date().toISOString()));
+  await env.PAINTBALL_DB.batch(statements);
+  const nextMatches = [...new Set([match.next_match_id,match.loser_next_match_id].filter(Boolean))];
+  for (const nextId of nextMatches) await env.PAINTBALL_DB.prepare("UPDATE pb_bracket_matches SET status=CASE WHEN team1_number IS NOT NULL AND team2_number IS NOT NULL THEN 'ready' ELSE 'pending' END WHERE id=?").bind(nextId).run();
+  return json({ok:true,winner,loser,matches:await bracketData(env,data.eventId),placements:await placementData(env,data.eventId)});
+}
+
 export async function onRequest(context) {
   const {request,env} = context;
   try {
@@ -252,6 +364,7 @@ export async function onRequest(context) {
     if (route === "admin/action" && request.method === "POST") return adminAction(request,env);
     if (route === "admin/teams" && request.method === "GET") return adminTeams(request,env);
     if (route === "admin/players" && request.method === "GET") return adminPlayers(request,env);
+    if (route === "admin/bracket" && ["GET","POST"].includes(request.method)) return adminBracket(request,env);
     return error("Not found.",404);
   } catch (caught) {
     return error(caught.message || "Unexpected server error.", caught.status || 500);

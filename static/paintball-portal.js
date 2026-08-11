@@ -143,6 +143,54 @@
       const grouped = {};
       assignments.forEach((row) => { const key = row.is_reserve ? "Reserves" : `Team ${row.team_number}`; (grouped[key] ||= []).push(row); });
       $("team-review-list").innerHTML = Object.entries(grouped).map(([name, players]) => `<article class="portal-team"><h3>${escapeHtml(name)}</h3><ul>${players.map((player) => `<li>${escapeHtml(player.in_game_name)} <span class="portal-muted">(${escapeHtml(player.discord_name)})</span></li>`).join("")}</ul></article>`).join("") || '<p class="portal-muted">No teams generated yet.</p>';
+      if ($("create-bracket")) $("create-bracket").onclick = () => createBracket(eventId);
+      await loadBracket(eventId);
+    } catch (error) { setStatus(error.message, "error"); }
+  }
+
+  function renderBracket(eventId, matches, placements = []) {
+    show("bracket-card", matches.length > 0);
+    if (!matches.length) return;
+    const maxRound = Math.max(...matches.map((match) => match.round_number));
+    const rounds = {};
+    matches.forEach((match) => (rounds[match.round_number] ||= []).push(match));
+    const roundName = (round) => round === maxRound ? "Final" : round === maxRound - 1 ? "Semifinals" : round === maxRound - 2 ? "Quarterfinals" : `Round ${round}`;
+    $("bracket-board").innerHTML = Object.entries(rounds).map(([round, roundMatches]) => `<section class="portal-round"><h3>${roundName(Number(round))}</h3>${roundMatches.map((match) => {
+      const team1 = match.team1_number ? `Team ${match.team1_number}` : "TBD";
+      const team2 = match.team2_number ? `Team ${match.team2_number}` : "TBD";
+      const completed = match.status === "completed";
+      const bye = match.status === "bye";
+      return `<article class="portal-match"><strong>${escapeHtml(match.label || `Match ${match.match_number}`)}</strong><div class="portal-match-team ${completed && match.winner_team_number === match.team1_number ? "portal-match-winner" : ""}"><span>${team1}</span><input class="portal-score" id="score1-${match.id}" type="number" min="0" value="${match.score1 ?? ""}" ${completed || bye ? "disabled" : ""}></div><div class="portal-match-team ${completed && match.winner_team_number === match.team2_number ? "portal-match-winner" : ""}"><span>${team2}</span><input class="portal-score" id="score2-${match.id}" type="number" min="0" value="${match.score2 ?? ""}" ${completed || bye ? "disabled" : ""}></div>${bye ? `<p class="portal-muted">${match.winner_team_number ? `Team ${match.winner_team_number} advances with a bye.` : "Bye"}</p>` : completed ? `<p class="portal-muted">Team ${match.winner_team_number} won this match.</p>` : `<div class="portal-actions"><button class="btn secondary bracket-result" data-event="${eventId}" data-match="${match.id}" ${match.status !== "ready" ? "disabled" : ""}>Save Result</button></div>`}</article>`;
+    }).join("")}</section>`).join("");
+    document.querySelectorAll(".bracket-result").forEach((button) => button.addEventListener("click", () => saveBracketResult(button.dataset.event,button.dataset.match)));
+    show("bracket-winner", placements.length > 0);
+    if (placements.length) $("bracket-winner").textContent = placements.map((item) => `${item.place}: Team ${item.team_number}`).join(" · ");
+  }
+
+  async function loadBracket(eventId) {
+    try {
+      const {matches,placements} = await api(`admin/bracket?eventId=${encodeURIComponent(eventId)}`);
+      renderBracket(eventId,matches,placements);
+    } catch (error) { setStatus(error.message, "error"); }
+  }
+
+  async function createBracket(eventId) {
+    setStatus("Building the tournament bracket…");
+    try {
+      const {matches,placements} = await api("admin/bracket", {method:"POST",body:JSON.stringify({action:"create",eventId})});
+      renderBracket(eventId,matches,placements);
+      setStatus("Placement bracket created. Enter scores and both winners and losing teams will move into the correct placement matches.", "success");
+    } catch (error) { setStatus(error.message, "error"); }
+  }
+
+  async function saveBracketResult(eventId, matchId) {
+    const score1 = Number($(`score1-${matchId}`).value);
+    const score2 = Number($(`score2-${matchId}`).value);
+    setStatus("Saving the match result…");
+    try {
+      const {matches,placements} = await api("admin/bracket", {method:"POST",body:JSON.stringify({action:"result",eventId,matchId,score1,score2})});
+      renderBracket(eventId,matches,placements);
+      setStatus("Result saved and the winner advanced.", "success");
     } catch (error) { setStatus(error.message, "error"); }
   }
 
