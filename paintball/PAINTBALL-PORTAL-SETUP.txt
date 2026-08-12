@@ -1,7 +1,8 @@
 MXS PAINTBALL — CLOUDFLARE PLAYER PORTAL SETUP
 ================================================
 
-The website, private API, player check-in, organizer dashboard, and random team
+The website, private API, event registration, attendance confirmation,
+organizer dashboard, and random team
 generator are built. Complete these Cloudflare and Discord steps once.
 
 IMPORTANT DEPLOYMENT REQUIREMENT
@@ -66,23 +67,26 @@ PLAYER FLOW
 -----------
 1. Player selects Continue with Discord.
 2. Player enters an in-game name and accepts the rulebook once.
-3. During the event's displayed check-in window, the player returns to the
-   Player Portal and selects Check in for this night.
-4. Staff closes check-in and generates random teams.
-5. Staff reviews or rerolls the teams and publishes them.
-6. Each player sees their team assignment in the player portal.
+3. Player browses posted events and selects Register for This Event.
+4. During that event's displayed confirmation window, the player returns and
+   selects Confirm Attendance.
+5. Staff closes confirmation and generates teams from confirmed players only.
+6. Staff reviews or rerolls the teams and publishes them.
+7. Each player sees their team assignment in the Player Portal.
 
 ORGANIZER FLOW
 --------------
 1. Create the pickup night in /paintball/admin/.
-2. Open check-in.
-3. Close check-in at the deadline.
-4. Choose 4v4 or 5v5 from the team-size control.
-5. Select Generate Teams. Change the format and regenerate if necessary.
-6. Select Review Teams, then Create Tournament Bracket after the teams are final.
-7. Select Publish Teams so players can see assignments and the public schedule.
-8. Enter each score; winners and losing teams advance to the correct matches.
-9. Complete the championship and placement matches to rank every team.
+2. Select Post Event so players can register.
+3. The confirmation button becomes available automatically during the times
+   entered when the event was created.
+4. Select Close Confirmation at the deadline.
+5. Choose 4v4 or 5v5 from the team-size control.
+6. Select Generate Teams. Change the format and regenerate if necessary.
+7. Select Review Teams, then Create Tournament Bracket after the teams are final.
+8. Select Publish Teams so players can see assignments and the public schedule.
+9. Enter each score; winners and losing teams advance to the correct matches.
+10. Complete the championship and placement matches to rank every team.
 
 The tournament tool adapts to the generated team count. Two, four, or eight
 teams use a full placement bracket. Other team counts use a round robin so
@@ -91,7 +95,7 @@ per round. Round-robin ties are broken by wins, score differential, points
 scored, then team number.
 
 Players beyond the last complete team become rotating reserves.
-At least eight checked-in players are required for 4v4 and ten for 5v5.
+At least eight confirmed players are required for 4v4 and ten for 5v5.
 
 SECURITY NOTES
 --------------
@@ -108,3 +112,9 @@ If the original seven-table schema was already installed, run the complete
 contents of /paintball/d1-bracket-migration.sql in the D1 Console once before
 deploying the bracket-enabled website. This adds pb_bracket_matches and
 pb_placements without changing existing players, events, or registrations.
+
+EVENT REGISTRATION UPGRADE FOR AN EXISTING DATABASE
+---------------------------------------------------
+Run the complete contents of /paintball/d1-event-registration-migration.sql
+in the D1 Console once before deploying the separate registration and
+confirmation flow. Existing confirmed players are preserved as registered.

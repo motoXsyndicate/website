@@ -162,24 +162,58 @@ async function currentEvent(request, env) {
   return json({event,checkedIn,assignment:assignment || null});
 }
 
+async function playerEvents(request, env) {
+  const user = await requireUser(request, env);
+  const cutoff = new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString();
+  const result = await env.PAINTBALL_DB.prepare(`
+    SELECT e.id,e.title,e.starts_at,e.check_in_opens_at,e.check_in_closes_at,e.status,
+      CASE WHEN r.user_id IS NULL THEN 0 ELSE 1 END AS registered,
+      CASE WHEN c.user_id IS NULL THEN 0 ELSE 1 END AS confirmed,
+      a.team_number,a.is_reserve,
+      (SELECT COUNT(*) FROM pb_event_registrations er WHERE er.event_id=e.id) AS registration_count,
+      (SELECT COUNT(*) FROM pb_check_ins ci WHERE ci.event_id=e.id) AS confirmation_count
+    FROM pb_events e
+    LEFT JOIN pb_event_registrations r ON r.event_id=e.id AND r.user_id=?
+    LEFT JOIN pb_check_ins c ON c.event_id=e.id AND c.user_id=?
+    LEFT JOIN pb_assignments a ON a.event_id=e.id AND a.user_id=?
+    WHERE e.status IN ('check_in_open','check_in_closed','teams_generated','teams_published','completed')
+      AND e.starts_at >= ?
+    ORDER BY e.starts_at
+  `).bind(user.id,user.id,user.id,cutoff).all();
+  return json({events:result.results});
+}
+
+async function registerForEvent(request, env) {
+  const user = await requireUser(request, env);
+  const data = await body(request);
+  const profile = await env.PAINTBALL_DB.prepare("SELECT active FROM pb_profiles WHERE user_id=?").bind(user.id).first();
+  if (!profile?.active) return error("Complete your player profile before registering for an event.");
+  const event = await env.PAINTBALL_DB.prepare("SELECT * FROM pb_events WHERE id=?").bind(data.eventId).first();
+  if (!event || event.status !== "check_in_open") return error("Registration is not open for this event.");
+  if (new Date() > new Date(event.check_in_closes_at)) return error("Registration and confirmation have closed for this event.");
+  await env.PAINTBALL_DB.prepare("INSERT OR IGNORE INTO pb_event_registrations(event_id,user_id,registered_at) VALUES (?,?,?)").bind(event.id,user.id,new Date().toISOString()).run();
+  return json({ok:true});
+}
+
 async function eventPlayers(request, env) {
   await requireUser(request, env);
   const eventId = new URL(request.url).searchParams.get("eventId");
   const event = await env.PAINTBALL_DB.prepare("SELECT id FROM pb_events WHERE id=? AND status IN ('check_in_open','check_in_closed','teams_generated','teams_published','completed')").bind(eventId).first();
   if (!event) return error("This pickup night is not available.",404);
-  const result = await env.PAINTBALL_DB.prepare(`SELECT p.in_game_name FROM pb_check_ins c JOIN pb_profiles p ON p.user_id=c.user_id WHERE c.event_id=? ORDER BY lower(p.in_game_name)`).bind(eventId).all();
-  return json({players:result.results,count:result.results.length});
+  const result = await env.PAINTBALL_DB.prepare(`SELECT p.in_game_name,CASE WHEN c.user_id IS NULL THEN 0 ELSE 1 END AS confirmed FROM pb_event_registrations r JOIN pb_profiles p ON p.user_id=r.user_id LEFT JOIN pb_check_ins c ON c.event_id=r.event_id AND c.user_id=r.user_id WHERE r.event_id=? ORDER BY lower(p.in_game_name)`).bind(eventId).all();
+  return json({players:result.results,count:result.results.length,confirmedCount:result.results.filter((player) => player.confirmed).length});
 }
 
 async function checkIn(request, env) {
   const user = await requireUser(request, env);
   const data = await body(request);
   const profile = await env.PAINTBALL_DB.prepare("SELECT active FROM pb_profiles WHERE user_id=?").bind(user.id).first();
-  if (!profile?.active) return error("Complete your player registration before checking in.");
+  if (!profile?.active) return error("Complete your player profile before confirming attendance.");
   const event = await env.PAINTBALL_DB.prepare("SELECT * FROM pb_events WHERE id=?").bind(data.eventId).first();
   const now = new Date();
-  if (!event || event.status !== "check_in_open") return error("Check-in is not open for this event.");
-  if (now < new Date(event.check_in_opens_at) || now > new Date(event.check_in_closes_at)) return error("This event is outside its check-in window.");
+  if (!event || event.status !== "check_in_open") return error("Confirmation is not open for this event.");
+  if (!(await env.PAINTBALL_DB.prepare("SELECT 1 FROM pb_event_registrations WHERE event_id=? AND user_id=?").bind(event.id,user.id).first())) return error("Register for this event before confirming attendance.");
+  if (now < new Date(event.check_in_opens_at) || now > new Date(event.check_in_closes_at)) return error("This event is outside its confirmation window.");
   await env.PAINTBALL_DB.prepare("INSERT OR IGNORE INTO pb_check_ins(event_id,user_id,checked_in_at) VALUES (?,?,?)").bind(event.id,user.id,now.toISOString()).run();
   return json({ok:true});
 }
@@ -201,12 +235,12 @@ async function publicEvent(request, env) {
 async function adminEvents(request, env) {
   const admin = await requireAdmin(request, env);
   if (request.method === "GET") {
-    const result = await env.PAINTBALL_DB.prepare(`SELECT e.*,COUNT(c.user_id) AS check_in_count FROM pb_events e LEFT JOIN pb_check_ins c ON c.event_id=e.id GROUP BY e.id ORDER BY e.starts_at DESC LIMIT 20`).all();
+    const result = await env.PAINTBALL_DB.prepare(`SELECT e.*,(SELECT COUNT(*) FROM pb_event_registrations r WHERE r.event_id=e.id) AS registration_count,(SELECT COUNT(*) FROM pb_check_ins c WHERE c.event_id=e.id) AS check_in_count FROM pb_events e ORDER BY e.starts_at DESC LIMIT 20`).all();
     return json({events:result.results});
   }
   const data = await body(request);
   if (!data.title || !data.startsAt || !data.opensAt || !data.closesAt) return error("Complete every event field.");
-  if (!(new Date(data.opensAt) < new Date(data.closesAt) && new Date(data.closesAt) <= new Date(data.startsAt))) return error("Check-in must open before it closes, and close before the event starts.");
+  if (!(new Date(data.opensAt) < new Date(data.closesAt) && new Date(data.closesAt) <= new Date(data.startsAt))) return error("Confirmation must open before it closes, and close before the event starts.");
   await env.PAINTBALL_DB.prepare("INSERT INTO pb_events(id,title,starts_at,check_in_opens_at,check_in_closes_at,status,created_by,created_at) VALUES (?,?,?,?,?,'draft',?,?)").bind(crypto.randomUUID(),String(data.title).slice(0,100),data.startsAt,data.opensAt,data.closesAt,admin.id,new Date().toISOString()).run();
   return json({ok:true});
 }
@@ -226,8 +260,8 @@ async function adminAction(request, env) {
   const event = await env.PAINTBALL_DB.prepare("SELECT * FROM pb_events WHERE id=?").bind(eventId).first();
   if (!event) return error("Event not found.",404);
   if (["open","close","publish"].includes(action)) {
-    if (action === "open" && !["draft","check_in_closed"].includes(event.status)) return error("Check-in cannot be opened from the event's current status.");
-    if (action === "close" && event.status !== "check_in_open") return error("Check-in is not currently open.");
+    if (action === "open" && !["draft","check_in_closed"].includes(event.status)) return error("This event cannot be posted from its current status.");
+    if (action === "close" && event.status !== "check_in_open") return error("Registration and confirmation are not currently open.");
     if (action === "publish" && event.status !== "teams_generated") return error("Generate and review the teams before publishing.");
     const next = {open:"check_in_open",close:"check_in_closed",publish:"teams_published"}[action];
     if (action === "publish" && !(await env.PAINTBALL_DB.prepare("SELECT 1 FROM pb_assignments WHERE event_id=?").bind(eventId).first())) return error("Generate teams before publishing them.");
@@ -235,10 +269,10 @@ async function adminAction(request, env) {
     return json({ok:true});
   }
   if (action !== "generate") return error("Unknown organizer action.");
-  if (!["check_in_closed","teams_generated"].includes(event.status)) return error("Close check-in before generating teams.");
+  if (!["check_in_closed","teams_generated"].includes(event.status)) return error("Close confirmation before generating teams.");
   if (!Number.isInteger(teamSize) || teamSize < 4 || teamSize > 6) return error("Choose a team size between 4 and 6 players.");
   const checked = await env.PAINTBALL_DB.prepare("SELECT user_id FROM pb_check_ins WHERE event_id=?").bind(eventId).all();
-  if (checked.results.length < teamSize * 2) return error(`At least ${teamSize * 2} checked-in players are required for ${teamSize}v${teamSize}.`);
+  if (checked.results.length < teamSize * 2) return error(`At least ${teamSize * 2} confirmed players are required for ${teamSize}v${teamSize}.`);
   const players = shuffle(checked.results);
   const fullCount = Math.floor(players.length / teamSize) * teamSize;
   const generationRow = await env.PAINTBALL_DB.prepare("SELECT COALESCE(MAX(generation),0)+1 AS generation FROM pb_assignments WHERE event_id=?").bind(eventId).first();
@@ -424,6 +458,8 @@ export async function onRequest(context) {
     if (route === "me" && request.method === "GET") return await getMe(request,env);
     if (route === "profile" && request.method === "POST") return await saveProfile(request,env);
     if (route === "event/current" && request.method === "GET") return await currentEvent(request,env);
+    if (route === "events" && request.method === "GET") return await playerEvents(request,env);
+    if (route === "event/register" && request.method === "POST") return await registerForEvent(request,env);
     if (route === "event/players" && request.method === "GET") return await eventPlayers(request,env);
     if (route === "check-in" && request.method === "POST") return await checkIn(request,env);
     if (route === "event/public" && request.method === "GET") return await publicEvent(request,env);

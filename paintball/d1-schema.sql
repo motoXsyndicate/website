@@ -48,6 +48,13 @@ CREATE TABLE IF NOT EXISTS pb_check_ins (
   PRIMARY KEY(event_id,user_id)
 );
 
+CREATE TABLE IF NOT EXISTS pb_event_registrations (
+  event_id TEXT NOT NULL REFERENCES pb_events(id) ON DELETE CASCADE,
+  user_id TEXT NOT NULL REFERENCES pb_profiles(user_id) ON DELETE CASCADE,
+  registered_at TEXT NOT NULL,
+  PRIMARY KEY(event_id,user_id)
+);
+
 CREATE TABLE IF NOT EXISTS pb_assignments (
   event_id TEXT NOT NULL REFERENCES pb_events(id) ON DELETE CASCADE,
   user_id TEXT NOT NULL REFERENCES pb_profiles(user_id) ON DELETE CASCADE,
@@ -94,6 +101,8 @@ CREATE INDEX IF NOT EXISTS pb_sessions_user_idx ON pb_sessions(user_id);
 CREATE INDEX IF NOT EXISTS pb_sessions_expires_idx ON pb_sessions(expires_at);
 CREATE INDEX IF NOT EXISTS pb_events_status_start_idx ON pb_events(status,starts_at);
 CREATE INDEX IF NOT EXISTS pb_check_ins_user_idx ON pb_check_ins(user_id);
+CREATE INDEX IF NOT EXISTS pb_event_registrations_user_idx ON pb_event_registrations(user_id);
+CREATE INDEX IF NOT EXISTS pb_event_registrations_event_idx ON pb_event_registrations(event_id,registered_at);
 CREATE INDEX IF NOT EXISTS pb_assignments_user_idx ON pb_assignments(user_id);
 CREATE INDEX IF NOT EXISTS pb_bracket_event_round_idx ON pb_bracket_matches(event_id,round_number,match_number);
 CREATE INDEX IF NOT EXISTS pb_placements_event_idx ON pb_placements(event_id,place);
