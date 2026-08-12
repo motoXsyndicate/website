@@ -188,12 +188,14 @@ async function playerEvents(request, env) {
   const cutoff = new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString();
   const result = await env.PAINTBALL_DB.prepare(`
     SELECT e.id,e.title,e.starts_at,e.check_in_opens_at,e.check_in_closes_at,e.team_size,e.description,e.match_format,e.estimated_duration,e.status,
+      CASE WHEN b.is_premium=1 THEN b.organization_name END AS organization_name,CASE WHEN b.is_premium=1 THEN b.logo_url END AS logo_url,CASE WHEN b.is_premium=1 THEN b.banner_url END AS banner_url,CASE WHEN b.is_premium=1 THEN b.accent_color END AS accent_color,CASE WHEN b.is_premium=1 THEN b.sponsor_text END AS sponsor_text,
       CASE WHEN r.user_id IS NULL THEN 0 ELSE 1 END AS registered,
       CASE WHEN c.user_id IS NULL THEN 0 ELSE 1 END AS confirmed,
       a.team_number,a.is_reserve,
       (SELECT COUNT(*) FROM pb_event_registrations er WHERE er.event_id=e.id) AS registration_count,
       (SELECT COUNT(*) FROM pb_check_ins ci WHERE ci.event_id=e.id) AS confirmation_count
     FROM pb_events e
+    LEFT JOIN pb_host_branding b ON b.user_id=e.created_by
     LEFT JOIN pb_event_registrations r ON r.event_id=e.id AND r.user_id=?
     LEFT JOIN pb_check_ins c ON c.event_id=e.id AND c.user_id=?
     LEFT JOIN pb_assignments a ON a.event_id=e.id AND a.user_id=?

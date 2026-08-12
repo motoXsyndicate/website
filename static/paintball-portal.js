@@ -76,6 +76,8 @@
         return;
       }
       const visibleEvents = selectedEvent ? [selectedEvent] : events;
+      if (selectedEvent?.accent_color) { document.documentElement.style.setProperty("--event-accent",selectedEvent.accent_color); document.body.classList.add("premium-event-theme"); }
+      if (selectedEvent?.banner_url) { const hero=document.querySelector(".page-hero"); hero.style.backgroundImage=`linear-gradient(rgba(5,12,18,.76),rgba(5,12,18,.9)),url("${selectedEvent.banner_url.replace(/["'()]/g,"")}")`; hero.style.backgroundSize="cover"; hero.style.backgroundPosition="center"; }
       if ($("events-heading")) $("events-heading").textContent = selectedEvent ? selectedEvent.title : "Choose the nights you want to play.";
       if ($("events-intro")) $("events-intro").innerHTML = selectedEvent ? 'Review the event information below. Register now, then return during the listed window to confirm attendance.' : '<strong>Select an event</strong> to view its full information, registered players, registration button, and confirmation status.';
       container.innerHTML = visibleEvents.map((event) => {
