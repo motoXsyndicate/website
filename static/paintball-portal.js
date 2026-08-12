@@ -171,7 +171,7 @@
     if (!account?.isAdmin) return;
     try {
       const {players} = await api("admin/hosts");
-      $("hosts-body").innerHTML = players.map((player) => `<tr><td>${escapeHtml(player.in_game_name)}</td><td>${escapeHtml(player.discord_name)}</td><td>${player.is_admin ? "MXS Admin" : player.is_host ? "Approved Host" : "Player"}</td><td>${player.is_admin ? "—" : `<button class="btn ${player.is_host ? "ghost" : "secondary"} host-action" data-id="${player.id}" data-action="${player.is_host ? "revoke" : "approve"}">${player.is_host ? "Revoke Host" : "Approve Host"}</button>`}</td></tr>`).join("");
+      $("hosts-body").innerHTML = players.map((player) => `<tr><td>${escapeHtml(player.in_game_name)}</td><td>${escapeHtml(player.discord_name)}</td><td>${player.is_admin ? "MXS Admin" : player.is_host ? "Approved Host" : "Player"}${player.is_premium ? " · Premium" : ""}</td><td><div class="portal-actions">${player.is_admin ? "" : `<button class="btn ${player.is_host ? "ghost" : "secondary"} host-action" data-id="${player.id}" data-action="${player.is_host ? "revoke" : "approve"}">${player.is_host ? "Revoke Host" : "Approve Host"}</button>`}${player.is_host || player.is_admin ? `<button class="btn ${player.is_premium ? "ghost" : "secondary"} host-action" data-id="${player.id}" data-action="${player.is_premium ? "standard" : "premium"}">${player.is_premium ? "Remove Premium" : "Grant Premium"}</button>` : ""}</div></td></tr>`).join("");
       document.querySelectorAll(".host-action").forEach((button) => button.addEventListener("click", () => updateHost(button.dataset.id,button.dataset.action)));
     } catch (error) { setStatus(error.message,"error"); }
   }
@@ -180,7 +180,25 @@
     try {
       await api("admin/hosts",{method:"POST",body:JSON.stringify({userId,action})});
       await loadHostManager();
-      setStatus(action === "approve" ? "Host approved. They can now create and manage their own events." : "Host access revoked. Their previous events and results remain saved.","success");
+      setStatus({approve:"Host approved. They can now create and manage their own events.",revoke:"Host access revoked. Their previous events and results remain saved.",premium:"Premium branding granted.",standard:"Premium branding removed. Their events now use standard MXS branding."}[action],"success");
+    } catch (error) { setStatus(error.message,"error"); }
+  }
+
+  async function loadBrandingEditor() {
+    show("branding-card", !!(account?.isAdmin || account?.isHost));
+    try {
+      const data = await api("host/branding");
+      show("branding-locked", !data.isPremium); show("branding-form", data.isPremium);
+      if (!data.isPremium) return;
+      $("branding-name").value=data.branding?.organization_name||""; $("branding-logo").value=data.branding?.logo_url||""; $("branding-banner").value=data.branding?.banner_url||""; $("branding-color").value=data.branding?.accent_color||"#53cc83"; $("branding-sponsor").value=data.branding?.sponsor_text||"";
+    } catch (error) { setStatus(error.message,"error"); }
+  }
+
+  async function saveBranding(event) {
+    event.preventDefault();
+    try {
+      await api("host/branding",{method:"POST",body:JSON.stringify({organizationName:$("branding-name").value,logoUrl:$("branding-logo").value,bannerUrl:$("branding-banner").value,accentColor:$("branding-color").value,sponsorText:$("branding-sponsor").value})});
+      setStatus("Premium event branding saved. It will appear on your published event pages.","success");
     } catch (error) { setStatus(error.message,"error"); }
   }
 
@@ -264,8 +282,9 @@
       document.querySelectorAll(".sign-out").forEach((button) => button.addEventListener("click", signOut));
       $("profile-form")?.addEventListener("submit", saveProfile);
       $("event-form")?.addEventListener("submit", createEvent);
+      $("branding-form")?.addEventListener("submit", saveBranding);
       if (page === "player" && account.profile) await loadPlayerDashboard();
-      if (page === "admin" && requireOrganizer()) await Promise.all([loadAdminEvents(), loadAdminPlayers(), loadHostManager()]);
+      if (page === "admin" && requireOrganizer()) await Promise.all([loadAdminEvents(), loadAdminPlayers(), loadHostManager(), loadBrandingEditor()]);
     } catch (error) {
       setStatus(error.message.includes("not configured") ? "The Cloudflare player system needs its database and Discord secrets connected before registration opens." : error.message, "error");
       show("setup-message", true);

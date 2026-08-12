@@ -144,12 +144,13 @@ async function logout(request, env) {
 async function getMe(request, env) {
   const user = await currentUser(request, env);
   if (!user) return json({user:null,profile:null,isAdmin:false,isHost:false});
-  const [profile, admin, host] = await Promise.all([
+  const [profile, admin, host, branding] = await Promise.all([
     env.PAINTBALL_DB.prepare("SELECT in_game_name, rules_accepted_at, active FROM pb_profiles WHERE user_id = ?").bind(user.id).first(),
     isAdmin(env,user.id),
-    isHost(env,user.id)
+    isHost(env,user.id),
+    env.PAINTBALL_DB.prepare("SELECT is_premium,organization_name,logo_url,banner_url,accent_color,sponsor_text FROM pb_host_branding WHERE user_id=?").bind(user.id).first()
   ]);
-  return json({user,profile:profile || null,isAdmin:admin,isHost:host});
+  return json({user,profile:profile || null,isAdmin:admin,isHost:host,isPremium:!!branding?.is_premium,branding:branding || null});
 }
 
 async function saveProfile(request, env) {
@@ -240,9 +241,8 @@ async function checkIn(request, env) {
 
 async function publicEvent(request, env) {
   const eventId = new URL(request.url).searchParams.get("eventId");
-  const event = eventId
-    ? await env.PAINTBALL_DB.prepare("SELECT id,title,starts_at,status FROM pb_events WHERE id=? AND status IN ('teams_published','completed')").bind(eventId).first()
-    : await env.PAINTBALL_DB.prepare("SELECT id,title,starts_at,status FROM pb_events WHERE status IN ('teams_published','completed') ORDER BY starts_at DESC LIMIT 1").first();
+  const eventQuery = `SELECT e.id,e.title,e.starts_at,e.status,u.discord_name AS host_name,CASE WHEN b.is_premium=1 THEN b.organization_name END AS organization_name,CASE WHEN b.is_premium=1 THEN b.logo_url END AS logo_url,CASE WHEN b.is_premium=1 THEN b.banner_url END AS banner_url,CASE WHEN b.is_premium=1 THEN b.accent_color END AS accent_color,CASE WHEN b.is_premium=1 THEN b.sponsor_text END AS sponsor_text FROM pb_events e JOIN pb_users u ON u.id=e.created_by LEFT JOIN pb_host_branding b ON b.user_id=e.created_by WHERE e.status IN ('teams_published','completed') ${eventId ? "AND e.id=?" : "ORDER BY e.starts_at DESC LIMIT 1"}`;
+  const event = eventId ? await env.PAINTBALL_DB.prepare(eventQuery).bind(eventId).first() : await env.PAINTBALL_DB.prepare(eventQuery).first();
   if (!event) return json({event:null,assignments:[],matches:[],placements:[]});
   const [assignments,matches,placements] = await Promise.all([
     env.PAINTBALL_DB.prepare(`SELECT a.team_number,a.is_reserve,p.in_game_name FROM pb_assignments a JOIN pb_profiles p ON p.user_id=a.user_id WHERE a.event_id=? ORDER BY a.is_reserve,a.team_number,lower(p.in_game_name)`).bind(event.id).all(),
@@ -471,13 +471,26 @@ async function adminBracket(request, env) {
 async function adminHosts(request, env) {
   const admin = await requireAdmin(request, env);
   if (request.method === "GET") {
-    const result = await env.PAINTBALL_DB.prepare(`SELECT u.id,u.discord_name,p.in_game_name,CASE WHEN h.user_id IS NULL THEN 0 ELSE 1 END AS is_host,CASE WHEN a.user_id IS NULL THEN 0 ELSE 1 END AS is_admin FROM pb_users u JOIN pb_profiles p ON p.user_id=u.id LEFT JOIN pb_hosts h ON h.user_id=u.id LEFT JOIN pb_admins a ON a.user_id=u.id ORDER BY lower(p.in_game_name)`).all();
+    const result = await env.PAINTBALL_DB.prepare(`SELECT u.id,u.discord_name,p.in_game_name,CASE WHEN h.user_id IS NULL THEN 0 ELSE 1 END AS is_host,CASE WHEN a.user_id IS NULL THEN 0 ELSE 1 END AS is_admin,COALESCE(b.is_premium,0) AS is_premium FROM pb_users u JOIN pb_profiles p ON p.user_id=u.id LEFT JOIN pb_hosts h ON h.user_id=u.id LEFT JOIN pb_admins a ON a.user_id=u.id LEFT JOIN pb_host_branding b ON b.user_id=u.id ORDER BY lower(p.in_game_name)`).all();
     return json({players:result.results});
   }
   const data = await body(request);
-  if (!data.userId || !["approve","revoke"].includes(data.action)) return error("Choose a valid host action.");
+  if (!data.userId || !["approve","revoke","premium","standard"].includes(data.action)) return error("Choose a valid host action.");
   if (data.action === "approve") await env.PAINTBALL_DB.prepare("INSERT OR REPLACE INTO pb_hosts(user_id,approved_by,approved_at) VALUES (?,?,?)").bind(data.userId,admin.id,new Date().toISOString()).run();
-  else await env.PAINTBALL_DB.prepare("DELETE FROM pb_hosts WHERE user_id=?").bind(data.userId).run();
+  else if (data.action === "revoke") await env.PAINTBALL_DB.prepare("DELETE FROM pb_hosts WHERE user_id=?").bind(data.userId).run();
+  else await env.PAINTBALL_DB.prepare(`INSERT INTO pb_host_branding(user_id,is_premium,updated_at) VALUES (?,?,?) ON CONFLICT(user_id) DO UPDATE SET is_premium=excluded.is_premium,updated_at=excluded.updated_at`).bind(data.userId,data.action === "premium" ? 1 : 0,new Date().toISOString()).run();
+  return json({ok:true});
+}
+
+async function hostBranding(request, env) {
+  const organizer = await requireOrganizer(request, env);
+  const existing = await env.PAINTBALL_DB.prepare("SELECT is_premium,organization_name,logo_url,banner_url,accent_color,sponsor_text FROM pb_host_branding WHERE user_id=?").bind(organizer.id).first();
+  if (request.method === "GET") return json({isPremium:!!existing?.is_premium,branding:existing || null});
+  if (!existing?.is_premium) return error("Premium Host access is required for custom branding.",403);
+  const data = await body(request);
+  const cleanUrl = (value) => { const text=String(value||"").trim(); if (!text) return null; try { const url=new URL(text); return url.protocol === "https:" ? url.toString().slice(0,500) : null; } catch { return null; } };
+  const accent = /^#[0-9a-fA-F]{6}$/.test(String(data.accentColor||"")) ? data.accentColor : "#53cc83";
+  await env.PAINTBALL_DB.prepare(`UPDATE pb_host_branding SET organization_name=?,logo_url=?,banner_url=?,accent_color=?,sponsor_text=?,updated_at=? WHERE user_id=?`).bind(String(data.organizationName||"").trim().slice(0,80)||null,cleanUrl(data.logoUrl),cleanUrl(data.bannerUrl),accent,String(data.sponsorText||"").trim().slice(0,120)||null,new Date().toISOString(),organizer.id).run();
   return json({ok:true});
 }
 
@@ -502,6 +515,7 @@ export async function onRequest(context) {
     if (route === "admin/teams" && request.method === "GET") return await adminTeams(request,env);
     if (route === "admin/players" && request.method === "GET") return await adminPlayers(request,env);
     if (route === "admin/hosts" && ["GET","POST"].includes(request.method)) return await adminHosts(request,env);
+    if (route === "host/branding" && ["GET","POST"].includes(request.method)) return await hostBranding(request,env);
     if (route === "admin/bracket" && ["GET","POST"].includes(request.method)) return await adminBracket(request,env);
     return error("Not found.",404);
   } catch (caught) {

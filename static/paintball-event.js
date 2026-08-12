@@ -34,6 +34,9 @@
       if (!data.event) return;
       $("public-event-title").textContent = data.event.title;
       $("public-event-time").textContent = `${formatDate(data.event.starts_at)} · Shown in your local timezone`;
+      if (data.event.accent_color) document.documentElement.style.setProperty("--event-accent",data.event.accent_color);
+      if (data.event.banner_url) { const hero=document.querySelector(".page-hero"); hero.style.backgroundImage=`linear-gradient(rgba(5,12,18,.76),rgba(5,12,18,.9)),url("${data.event.banner_url.replace(/["'()]/g,"")}")`; hero.style.backgroundSize="cover"; hero.style.backgroundPosition="center"; }
+      if (data.event.logo_url || data.event.organization_name || data.event.sponsor_text) { $("public-branding").innerHTML=`${data.event.logo_url ? `<img src="${escapeHtml(data.event.logo_url)}" alt="${escapeHtml(data.event.organization_name || data.event.host_name)} logo">` : ""}<div><span>Hosted by</span><strong>${escapeHtml(data.event.organization_name || data.event.host_name)}</strong>${data.event.sponsor_text ? `<p>${escapeHtml(data.event.sponsor_text)}</p>` : ""}</div>`; show("public-branding",true); }
       renderTeams(data.assignments); renderMatches(data.matches);
       show("public-placements-card", data.placements.length > 0);
       $("public-placements").innerHTML = data.placements.map((row) => `<article class="portal-team"><span class="public-place">${row.place}${row.place === 1 ? "st" : row.place === 2 ? "nd" : row.place === 3 ? "rd" : "th"}</span><h3>Team ${row.team_number}</h3></article>`).join("");
