@@ -23,6 +23,12 @@ CREATE TABLE IF NOT EXISTS pb_admins (
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS pb_hosts (
+  user_id TEXT PRIMARY KEY REFERENCES pb_users(id) ON DELETE CASCADE,
+  approved_by TEXT NOT NULL REFERENCES pb_users(id),
+  approved_at TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS pb_sessions (
   token_hash TEXT PRIMARY KEY,
   user_id TEXT NOT NULL REFERENCES pb_users(id) ON DELETE CASCADE,

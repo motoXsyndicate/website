@@ -39,7 +39,7 @@
     show("signed-in", signedIn);
     show("profile-card", signedIn && !account.profile);
     show("player-dashboard", signedIn && !!account.profile && page === "player");
-    show("admin-shortcut", signedIn && account.isAdmin && page === "player");
+    show("admin-shortcut", signedIn && (account.isAdmin || account.isHost) && page === "player");
     if (!signedIn) return;
     if ($("account-name")) $("account-name").textContent = account.user.discord_name;
     if ($("profile-discord")) $("profile-discord").value = account.user.discord_name;
@@ -119,9 +119,9 @@
     } catch (error) { list.innerHTML = `<p class="portal-muted">${escapeHtml(error.message)}</p>`; }
   }
 
-  function requireAdmin() {
+  function requireOrganizer() {
     if (!account?.user) { show("admin-login", true); show("admin-dashboard", false); return false; }
-    if (!account.isAdmin) { show("admin-login", false); show("admin-dashboard", false); setStatus("This organizer page is restricted to an approved MXS administrator.", "error"); return false; }
+    if (!account.isAdmin && !account.isHost) { show("admin-login", false); show("admin-dashboard", false); setStatus("This organizer page is restricted to approved MXS hosts.", "error"); return false; }
     show("admin-login", false); show("admin-dashboard", true); return true;
   }
 
@@ -134,7 +134,7 @@
         opensAt:new Date($("event-open").value).toISOString(),
         closesAt:new Date($("event-close").value).toISOString()
       })});
-      event.target.reset(); setStatus("Pickup night created.", "success"); await loadAdminEvents();
+      event.target.reset(); setStatus("Event created and posted. Players can register immediately.", "success"); await loadAdminEvents();
     } catch (error) { setStatus(error.message, "error"); }
   }
 
@@ -143,12 +143,12 @@
       const {events} = await api("admin/events");
       const body = $("events-body");
       body.innerHTML = events.map((event) => {
-        const canOpen = ["draft","check_in_closed"].includes(event.status);
+        const canOpen = event.status === "draft";
         const canClose = event.status === "check_in_open";
         const canGenerate = ["check_in_closed","teams_generated"].includes(event.status);
         const canPublish = event.status === "teams_generated";
         const canReview = ["teams_generated","teams_published","completed"].includes(event.status);
-        return `<tr><td>${escapeHtml(event.title)}<br><span class="portal-muted">${escapeHtml(formatDate(event.starts_at))}</span></td><td>${escapeHtml(eventStatus(event.status))}</td><td>${event.registration_count} / ${event.check_in_count}</td><td><div class="portal-actions"><button class="btn ghost admin-event-action" data-id="${event.id}" data-action="open" ${canOpen ? "" : "disabled"}>Post Event</button><button class="btn ghost admin-event-action" data-id="${event.id}" data-action="close" ${canClose ? "" : "disabled"}>Close Confirmation</button><select class="portal-team-size" data-event-id="${event.id}" aria-label="Players per team" ${canGenerate ? "" : "disabled"}><option value="4">4v4</option><option value="5">5v5</option><option value="6">6v6 override</option></select><button class="btn secondary admin-event-action" data-id="${event.id}" data-action="generate" ${canGenerate ? "" : "disabled"}>Generate Teams</button><button class="btn primary admin-event-action" data-id="${event.id}" data-action="publish" ${canPublish ? "" : "disabled"}>Publish Teams</button><button class="btn ghost admin-event-action" data-id="${event.id}" data-action="view" ${canReview ? "" : "disabled"}>Review Teams</button></div></td></tr>`;
+        return `<tr><td>${escapeHtml(event.title)}<br><span class="portal-muted">Hosted by ${escapeHtml(event.host_name)} · ${escapeHtml(formatDate(event.starts_at))}</span></td><td>${escapeHtml(eventStatus(event.status))}</td><td>${event.registration_count} / ${event.check_in_count}</td><td><div class="portal-actions">${canOpen ? `<button class="btn ghost admin-event-action" data-id="${event.id}" data-action="open">Post Legacy Draft</button>` : ""}<button class="btn ghost admin-event-action" data-id="${event.id}" data-action="close" ${canClose ? "" : "disabled"}>Close Confirmation</button><select class="portal-team-size" data-event-id="${event.id}" aria-label="Players per team" ${canGenerate ? "" : "disabled"}><option value="4">4v4</option><option value="5">5v5</option><option value="6">6v6 override</option></select><button class="btn secondary admin-event-action" data-id="${event.id}" data-action="generate" ${canGenerate ? "" : "disabled"}>Generate Teams</button><button class="btn primary admin-event-action" data-id="${event.id}" data-action="publish" ${canPublish ? "" : "disabled"}>Publish Teams</button><button class="btn ghost admin-event-action" data-id="${event.id}" data-action="view" ${canReview ? "" : "disabled"}>Review Teams</button></div></td></tr>`;
       }).join("") || '<tr><td colspan="4">No events created.</td></tr>';
       document.querySelectorAll(".admin-event-action").forEach((button) => button.addEventListener("click", () => {
         const teamSize = Number(document.querySelector(`.portal-team-size[data-event-id="${button.dataset.id}"]`)?.value || 0);
@@ -158,10 +158,30 @@
   }
 
   async function loadAdminPlayers() {
+    show("registered-player-directory", !!account?.isAdmin);
+    if (!account?.isAdmin) return;
     try {
       const {players} = await api("admin/players");
       $("players-body").innerHTML = players.map((player) => `<tr><td>${escapeHtml(player.in_game_name)}</td><td>${escapeHtml(player.discord_name)}</td><td>${escapeHtml(new Date(player.created_at).toLocaleDateString())}</td><td>${player.active ? "Active" : "Inactive"}</td></tr>`).join("") || '<tr><td colspan="4">No registered players yet.</td></tr>';
     } catch (error) { setStatus(error.message, "error"); }
+  }
+
+  async function loadHostManager() {
+    show("host-manager", !!account?.isAdmin);
+    if (!account?.isAdmin) return;
+    try {
+      const {players} = await api("admin/hosts");
+      $("hosts-body").innerHTML = players.map((player) => `<tr><td>${escapeHtml(player.in_game_name)}</td><td>${escapeHtml(player.discord_name)}</td><td>${player.is_admin ? "MXS Admin" : player.is_host ? "Approved Host" : "Player"}</td><td>${player.is_admin ? "—" : `<button class="btn ${player.is_host ? "ghost" : "secondary"} host-action" data-id="${player.id}" data-action="${player.is_host ? "revoke" : "approve"}">${player.is_host ? "Revoke Host" : "Approve Host"}</button>`}</td></tr>`).join("");
+      document.querySelectorAll(".host-action").forEach((button) => button.addEventListener("click", () => updateHost(button.dataset.id,button.dataset.action)));
+    } catch (error) { setStatus(error.message,"error"); }
+  }
+
+  async function updateHost(userId, action) {
+    try {
+      await api("admin/hosts",{method:"POST",body:JSON.stringify({userId,action})});
+      await loadHostManager();
+      setStatus(action === "approve" ? "Host approved. They can now create and manage their own events." : "Host access revoked. Their previous events and results remain saved.","success");
+    } catch (error) { setStatus(error.message,"error"); }
   }
 
   async function adminAction(eventId, action, teamSize = null) {
@@ -245,7 +265,7 @@
       $("profile-form")?.addEventListener("submit", saveProfile);
       $("event-form")?.addEventListener("submit", createEvent);
       if (page === "player" && account.profile) await loadPlayerDashboard();
-      if (page === "admin" && requireAdmin()) await Promise.all([loadAdminEvents(), loadAdminPlayers()]);
+      if (page === "admin" && requireOrganizer()) await Promise.all([loadAdminEvents(), loadAdminPlayers(), loadHostManager()]);
     } catch (error) {
       setStatus(error.message.includes("not configured") ? "The Cloudflare player system needs its database and Discord secrets connected before registration opens." : error.message, "error");
       show("setup-message", true);

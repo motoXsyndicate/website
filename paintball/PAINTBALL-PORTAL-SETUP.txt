@@ -118,3 +118,10 @@ EVENT REGISTRATION UPGRADE FOR AN EXISTING DATABASE
 Run the complete contents of /paintball/d1-event-registration-migration.sql
 in the D1 Console once before deploying the separate registration and
 confirmation flow. Existing confirmed players are preserved as registered.
+
+APPROVED HOST UPGRADE FOR AN EXISTING DATABASE
+----------------------------------------------
+Run the complete contents of /paintball/d1-hosts-migration.sql in the D1
+Console once. MXS admins can then approve or revoke hosts from the Organizer
+dashboard. Approved hosts publish events immediately and can manage only the
+events they created. Admins retain access to every event.

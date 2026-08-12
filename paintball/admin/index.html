@@ -12,25 +12,26 @@
 <body class="paintball-page" data-portal-page="admin">
 <header class="site-header"><nav class="nav-wrap"><a class="brand-link" href="/"><img src="/static/images/motoxsyndicate-wordmark.png?v=20260719c" alt="MotoXsyndicate" class="nav-logo wordmark-logo"></a><div class="nav-links"><a href="/paintball/">Paintball</a><a href="/paintball/register/">Events &amp; Registration</a><a href="/paintball/results/">Results</a><a class="active-nav" href="/paintball/admin/">Organizer</a></div></nav></header>
 <main>
-    <section class="page-hero small"><p class="eyebrow">MXS STAFF</p><h1>Pickup Night Organizer</h1><p>Create events, manage check-in, change the format on the fly, generate random teams, and publish assignments.</p></section>
+    <section class="page-hero small"><p class="eyebrow">APPROVED EVENT HOSTS</p><h1>Pickup Night Organizer</h1><p>Create and publish your own events, manage confirmations, generate teams, run brackets, and publish results. Hosts can manage only their events; MXS admins can manage everything.</p></section>
     <section class="portal-shell">
         <div id="portal-status" class="portal-status portal-hidden"></div>
         <div id="setup-message" class="portal-card portal-hidden"><h2>Connect Cloudflare to activate this dashboard</h2><p>Create and bind the D1 database, then add the encrypted Discord OAuth secrets in the Cloudflare Pages settings.</p></div>
         <div id="portal-app">
-            <section id="admin-login" class="portal-card portal-hidden"><h2>Organizer sign-in</h2><p>Sign in using the approved MXS Discord account.</p><div class="portal-actions"><button id="admin-discord-login" class="btn primary">Continue with Discord</button></div></section>
+            <section id="admin-login" class="portal-card portal-hidden"><h2>Host sign-in</h2><p>Sign in using an approved host or MXS administrator Discord account.</p><div class="portal-actions"><button id="admin-discord-login" class="btn primary">Continue with Discord</button></div></section>
             <div id="admin-dashboard" class="portal-hidden">
                 <div class="portal-actions"><button class="btn ghost sign-out">Sign out</button></div>
                 <section class="portal-grid">
                     <article class="portal-card"><h2>Create pickup night</h2><p id="event-timezone" class="portal-muted">Times use your device timezone. Players will see them converted to their own timezone.</p><form id="event-form" class="portal-form"><label>Event title<input id="event-title" required placeholder="Pickup Tournament #1"></label><label>Event starts<input id="event-start" type="datetime-local" required></label><label>Confirmation opens<input id="event-open" type="datetime-local" required></label><label>Confirmation closes<input id="event-close" type="datetime-local" required></label><button class="btn primary" type="submit">Create event</button></form></article>
                     <article id="team-review" class="portal-card portal-hidden"><h2>Generated teams</h2><p class="portal-muted">Review before publishing. Change the team size or generate again whenever needed.</p><div id="team-review-list" class="portal-list"></div><div class="portal-actions"><button id="create-bracket" class="btn primary">Create Tournament Bracket</button></div></article>
                 </section>
-                <section class="portal-card"><h2>Pickup nights</h2><p class="portal-muted"><strong>Event flow:</strong> Post Event → players register → confirmation window opens automatically → Close Confirmation → Generate Teams → Review Teams → Create Tournament Bracket → Publish Teams. Only confirmed players enter the generator.</p><div class="portal-table-wrap"><table class="portal-table"><thead><tr><th>Event</th><th>Status</th><th>Registered / Confirmed</th><th>Controls</th></tr></thead><tbody id="events-body"></tbody></table></div></section>
+                <section class="portal-card"><h2>Your pickup nights</h2><p class="portal-muted">New events publish immediately when created. Players register, return during the confirmation window, and confirm attendance. Then close confirmation, generate teams, create the bracket, and publish.</p><div class="portal-table-wrap"><table class="portal-table"><thead><tr><th>Event</th><th>Status</th><th>Registered / Confirmed</th><th>Controls</th></tr></thead><tbody id="events-body"></tbody></table></div></section>
                 <section id="bracket-card" class="portal-card portal-hidden"><div class="section-title-row"><div><p class="eyebrow">TOURNAMENT CONTROL</p><h2>Event bracket</h2></div><span id="bracket-winner" class="coming-pill portal-hidden"></span></div><div id="bracket-board" class="portal-bracket"></div></section>
-                <section class="portal-card"><h2>Registered players</h2><div class="portal-table-wrap"><table class="portal-table"><thead><tr><th>In-game name</th><th>Discord</th><th>Registered</th><th>Status</th></tr></thead><tbody id="players-body"></tbody></table></div></section>
+                <section id="registered-player-directory" class="portal-card portal-hidden"><h2>Registered players</h2><div class="portal-table-wrap"><table class="portal-table"><thead><tr><th>In-game name</th><th>Discord</th><th>Registered</th><th>Status</th></tr></thead><tbody id="players-body"></tbody></table></div></section>
+                <section id="host-manager" class="portal-card portal-hidden"><p class="eyebrow">MXS ADMIN ONLY</p><h2>Host permissions</h2><p class="portal-muted">Approve a registered player once to let them create and publish their own events. Revoking access does not remove their previous events or results.</p><div class="portal-table-wrap"><table class="portal-table"><thead><tr><th>In-game name</th><th>Discord</th><th>Role</th><th>Access</th></tr></thead><tbody id="hosts-body"></tbody></table></div></section>
             </div>
         </div>
     </section>
 </main>
-<script src="/static/paintball-portal.js?v=20260811i"></script>
+<script src="/static/paintball-portal.js?v=20260811j"></script>
 </body>
 </html>

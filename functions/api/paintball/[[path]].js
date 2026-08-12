@@ -63,6 +63,25 @@ async function requireAdmin(request, env) {
   return user;
 }
 
+async function isHost(env, userId) {
+  return !!(await env.PAINTBALL_DB.prepare("SELECT 1 FROM pb_hosts WHERE user_id = ?").bind(userId).first());
+}
+
+async function requireOrganizer(request, env) {
+  const user = await requireUser(request, env);
+  const [admin,host] = await Promise.all([isAdmin(env,user.id),isHost(env,user.id)]);
+  if (!admin && !host) throw Object.assign(new Error("Approved host access required."), {status:403});
+  return {...user,isAdmin:admin,isHost:host};
+}
+
+async function requireEventOwner(request, env, eventId) {
+  const organizer = await requireOrganizer(request, env);
+  const event = await env.PAINTBALL_DB.prepare("SELECT * FROM pb_events WHERE id=?").bind(eventId).first();
+  if (!event) throw Object.assign(new Error("Event not found."), {status:404});
+  if (!organizer.isAdmin && event.created_by !== organizer.id) throw Object.assign(new Error("You can only manage events you created."), {status:403});
+  return {organizer,event};
+}
+
 async function body(request) {
   try { return await request.json(); }
   catch { throw new Error("Invalid request."); }
@@ -124,12 +143,13 @@ async function logout(request, env) {
 
 async function getMe(request, env) {
   const user = await currentUser(request, env);
-  if (!user) return json({user:null,profile:null,isAdmin:false});
-  const [profile, admin] = await Promise.all([
+  if (!user) return json({user:null,profile:null,isAdmin:false,isHost:false});
+  const [profile, admin, host] = await Promise.all([
     env.PAINTBALL_DB.prepare("SELECT in_game_name, rules_accepted_at, active FROM pb_profiles WHERE user_id = ?").bind(user.id).first(),
-    isAdmin(env,user.id)
+    isAdmin(env,user.id),
+    isHost(env,user.id)
   ]);
-  return json({user,profile:profile || null,isAdmin:admin});
+  return json({user,profile:profile || null,isAdmin:admin,isHost:host});
 }
 
 async function saveProfile(request, env) {
@@ -233,15 +253,17 @@ async function publicEvent(request, env) {
 }
 
 async function adminEvents(request, env) {
-  const admin = await requireAdmin(request, env);
+  const organizer = await requireOrganizer(request, env);
   if (request.method === "GET") {
-    const result = await env.PAINTBALL_DB.prepare(`SELECT e.*,(SELECT COUNT(*) FROM pb_event_registrations r WHERE r.event_id=e.id) AS registration_count,(SELECT COUNT(*) FROM pb_check_ins c WHERE c.event_id=e.id) AS check_in_count FROM pb_events e ORDER BY e.starts_at DESC LIMIT 20`).all();
+    const query = `SELECT e.*,u.discord_name AS host_name,(SELECT COUNT(*) FROM pb_event_registrations r WHERE r.event_id=e.id) AS registration_count,(SELECT COUNT(*) FROM pb_check_ins c WHERE c.event_id=e.id) AS check_in_count FROM pb_events e JOIN pb_users u ON u.id=e.created_by ${organizer.isAdmin ? "" : "WHERE e.created_by=?"} ORDER BY e.starts_at DESC LIMIT 20`;
+    const statement = env.PAINTBALL_DB.prepare(query);
+    const result = organizer.isAdmin ? await statement.all() : await statement.bind(organizer.id).all();
     return json({events:result.results});
   }
   const data = await body(request);
   if (!data.title || !data.startsAt || !data.opensAt || !data.closesAt) return error("Complete every event field.");
   if (!(new Date(data.opensAt) < new Date(data.closesAt) && new Date(data.closesAt) <= new Date(data.startsAt))) return error("Confirmation must open before it closes, and close before the event starts.");
-  await env.PAINTBALL_DB.prepare("INSERT INTO pb_events(id,title,starts_at,check_in_opens_at,check_in_closes_at,status,created_by,created_at) VALUES (?,?,?,?,?,'draft',?,?)").bind(crypto.randomUUID(),String(data.title).slice(0,100),data.startsAt,data.opensAt,data.closesAt,admin.id,new Date().toISOString()).run();
+  await env.PAINTBALL_DB.prepare("INSERT INTO pb_events(id,title,starts_at,check_in_opens_at,check_in_closes_at,status,created_by,created_at) VALUES (?,?,?,?,?,'check_in_open',?,?)").bind(crypto.randomUUID(),String(data.title).slice(0,100),data.startsAt,data.opensAt,data.closesAt,organizer.id,new Date().toISOString()).run();
   return json({ok:true});
 }
 
@@ -255,10 +277,8 @@ function shuffle(players) {
 }
 
 async function adminAction(request, env) {
-  await requireAdmin(request, env);
   const {eventId,action,teamSize} = await body(request);
-  const event = await env.PAINTBALL_DB.prepare("SELECT * FROM pb_events WHERE id=?").bind(eventId).first();
-  if (!event) return error("Event not found.",404);
+  const {event} = await requireEventOwner(request,env,eventId);
   if (["open","close","publish"].includes(action)) {
     if (action === "open" && !["draft","check_in_closed"].includes(event.status)) return error("This event cannot be posted from its current status.");
     if (action === "close" && event.status !== "check_in_open") return error("Registration and confirmation are not currently open.");
@@ -289,14 +309,14 @@ async function adminAction(request, env) {
 }
 
 async function adminTeams(request, env) {
-  await requireAdmin(request, env);
   const eventId = new URL(request.url).searchParams.get("eventId");
+  await requireEventOwner(request,env,eventId);
   const result = await env.PAINTBALL_DB.prepare(`SELECT a.team_number,a.is_reserve,a.generation,p.in_game_name,u.discord_name FROM pb_assignments a JOIN pb_profiles p ON p.user_id=a.user_id JOIN pb_users u ON u.id=a.user_id WHERE a.event_id=? ORDER BY a.is_reserve,a.team_number,p.in_game_name`).bind(eventId).all();
   return json({assignments:result.results});
 }
 
 async function adminPlayers(request, env) {
-  await requireAdmin(request, env);
+  await requireOrganizer(request, env);
   const result = await env.PAINTBALL_DB.prepare(`SELECT p.in_game_name,p.active,p.created_at,u.discord_name FROM pb_profiles p JOIN pb_users u ON u.id=p.user_id ORDER BY lower(p.in_game_name)`).all();
   return json({players:result.results});
 }
@@ -409,12 +429,13 @@ async function refreshRoundRobinPlacements(env, eventId) {
 }
 
 async function adminBracket(request, env) {
-  await requireAdmin(request, env);
   if (request.method === "GET") {
     const eventId = new URL(request.url).searchParams.get("eventId");
+    await requireEventOwner(request,env,eventId);
     return json({matches:await bracketData(env,eventId),placements:await placementData(env,eventId)});
   }
   const data = await body(request);
+  await requireEventOwner(request,env,data.eventId);
   if (data.action === "create") {
     const created = await createBracket(env,data.eventId);
     return json({ok:true,...created,matches:await bracketData(env,data.eventId),placements:[]});
@@ -447,6 +468,19 @@ async function adminBracket(request, env) {
   return json({ok:true,winner,loser,matches:await bracketData(env,data.eventId),placements:await placementData(env,data.eventId)});
 }
 
+async function adminHosts(request, env) {
+  const admin = await requireAdmin(request, env);
+  if (request.method === "GET") {
+    const result = await env.PAINTBALL_DB.prepare(`SELECT u.id,u.discord_name,p.in_game_name,CASE WHEN h.user_id IS NULL THEN 0 ELSE 1 END AS is_host,CASE WHEN a.user_id IS NULL THEN 0 ELSE 1 END AS is_admin FROM pb_users u JOIN pb_profiles p ON p.user_id=u.id LEFT JOIN pb_hosts h ON h.user_id=u.id LEFT JOIN pb_admins a ON a.user_id=u.id ORDER BY lower(p.in_game_name)`).all();
+    return json({players:result.results});
+  }
+  const data = await body(request);
+  if (!data.userId || !["approve","revoke"].includes(data.action)) return error("Choose a valid host action.");
+  if (data.action === "approve") await env.PAINTBALL_DB.prepare("INSERT OR REPLACE INTO pb_hosts(user_id,approved_by,approved_at) VALUES (?,?,?)").bind(data.userId,admin.id,new Date().toISOString()).run();
+  else await env.PAINTBALL_DB.prepare("DELETE FROM pb_hosts WHERE user_id=?").bind(data.userId).run();
+  return json({ok:true});
+}
+
 export async function onRequest(context) {
   const {request,env} = context;
   try {
@@ -467,6 +501,7 @@ export async function onRequest(context) {
     if (route === "admin/action" && request.method === "POST") return await adminAction(request,env);
     if (route === "admin/teams" && request.method === "GET") return await adminTeams(request,env);
     if (route === "admin/players" && request.method === "GET") return await adminPlayers(request,env);
+    if (route === "admin/hosts" && ["GET","POST"].includes(request.method)) return await adminHosts(request,env);
     if (route === "admin/bracket" && ["GET","POST"].includes(request.method)) return await adminBracket(request,env);
     return error("Not found.",404);
   } catch (caught) {
