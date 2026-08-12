@@ -8,7 +8,8 @@
   const $ = (id) => document.getElementById(id);
   const show = (id, visible = true) => $(id)?.classList.toggle("portal-hidden", !visible);
   const escapeHtml = (value) => String(value ?? "").replace(/[&<>'"]/g, (char) => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[char]));
-  const formatDate = (value) => new Intl.DateTimeFormat("en-US", {weekday:"long",month:"long",day:"numeric",hour:"numeric",minute:"2-digit",timeZone:"America/Chicago",timeZoneName:"short"}).format(new Date(value));
+  const viewerTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || "your local timezone";
+  const formatDate = (value) => new Intl.DateTimeFormat("en-US", {weekday:"long",month:"long",day:"numeric",hour:"numeric",minute:"2-digit",timeZoneName:"short"}).format(new Date(value));
 
   function setStatus(message, type = "") {
     if (!statusBox) return;
@@ -197,6 +198,7 @@
 
   async function init() {
     try {
+      if ($("event-timezone")) $("event-timezone").textContent = `Times entered here use your device timezone: ${viewerTimeZone}. Players will see them converted to their own timezone.`;
       account = await api("me");
       renderIdentity();
       $("discord-login")?.addEventListener("click", signIn);

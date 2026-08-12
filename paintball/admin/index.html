@@ -21,7 +21,7 @@
             <div id="admin-dashboard" class="portal-hidden">
                 <div class="portal-actions"><button class="btn ghost sign-out">Sign out</button></div>
                 <section class="portal-grid">
-                    <article class="portal-card"><h2>Create pickup night</h2><form id="event-form" class="portal-form"><label>Event title<input id="event-title" required placeholder="Tuesday Pickup Night #1"></label><label>Event starts<input id="event-start" type="datetime-local" required></label><label>Check-in opens<input id="event-open" type="datetime-local" required></label><label>Check-in closes<input id="event-close" type="datetime-local" required></label><button class="btn primary" type="submit">Create event</button></form></article>
+                    <article class="portal-card"><h2>Create pickup night</h2><p id="event-timezone" class="portal-muted">Times use your device timezone. Players will see them converted to their own timezone.</p><form id="event-form" class="portal-form"><label>Event title<input id="event-title" required placeholder="Tuesday Pickup Night #1"></label><label>Event starts<input id="event-start" type="datetime-local" required></label><label>Check-in opens<input id="event-open" type="datetime-local" required></label><label>Check-in closes<input id="event-close" type="datetime-local" required></label><button class="btn primary" type="submit">Create event</button></form></article>
                     <article id="team-review" class="portal-card portal-hidden"><h2>Generated teams</h2><p class="portal-muted">Review before publishing. Change the team size or generate again whenever needed.</p><div id="team-review-list" class="portal-list"></div><div class="portal-actions"><button id="create-bracket" class="btn primary">Create Tournament Bracket</button></div></article>
                 </section>
                 <section class="portal-card"><h2>Pickup nights</h2><p class="portal-muted">After closing check-in, choose a team size for that night and generate the teams. You can change the format and regenerate before publishing.</p><div class="portal-table-wrap"><table class="portal-table"><thead><tr><th>Event</th><th>Status</th><th>Checked in</th><th>Controls</th></tr></thead><tbody id="events-body"></tbody></table></div></section>
@@ -31,6 +31,6 @@
         </div>
     </section>
 </main>
-<script src="/static/paintball-portal.js?v=20260811c"></script>
+<script src="/static/paintball-portal.js?v=20260811d"></script>
 </body>
 </html>
