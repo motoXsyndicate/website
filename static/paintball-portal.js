@@ -10,6 +10,7 @@
   const escapeHtml = (value) => String(value ?? "").replace(/[&<>'"]/g, (char) => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[char]));
   const viewerTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || "your local timezone";
   const formatDate = (value) => new Intl.DateTimeFormat("en-US", {weekday:"long",month:"long",day:"numeric",hour:"numeric",minute:"2-digit",timeZoneName:"short"}).format(new Date(value));
+  const eventStatus = (status) => ({draft:"Draft",check_in_open:"Check-in open",check_in_closed:"Check-in closed",teams_generated:"Teams ready for review",teams_published:"Teams published",completed:"Completed",cancelled:"Cancelled"}[status] || status.replaceAll("_", " "));
 
   function setStatus(message, type = "") {
     if (!statusBox) return;
@@ -65,13 +66,17 @@
       const data = await api("event/current");
       const container = $("current-event");
       if (!data.event) {
-        container.innerHTML = '<p class="portal-muted">No pickup night is open yet. Watch Discord for the next announcement.</p>';
+        container.innerHTML = '<p class="portal-muted">There is no upcoming pickup night available for check-in yet. Watch Discord for the announcement, then return to this page.</p>';
         show("assignment-card", false);
         return;
       }
       const event = data.event;
-      const open = event.status === "check_in_open";
-      container.innerHTML = `<div class="portal-event"><div><span class="portal-pill">${escapeHtml(event.status.replaceAll("_", " "))}</span><h3>${escapeHtml(event.title)}</h3><p>${escapeHtml(formatDate(event.starts_at))}</p><p class="portal-muted">Check-in closes ${escapeHtml(formatDate(event.check_in_closes_at))}</p></div><button class="btn primary" id="check-in-button" ${!open || data.checkedIn ? "disabled" : ""}>${data.checkedIn ? "Checked in" : open ? "Check in for this night" : "Check-in closed"}</button></div>`;
+      const now = new Date();
+      const opensAt = new Date(event.check_in_opens_at);
+      const closesAt = new Date(event.check_in_closes_at);
+      const open = event.status === "check_in_open" && now >= opensAt && now <= closesAt;
+      const checkInLabel = data.checkedIn ? "You’re checked in" : open ? "Check in for this night" : now < opensAt ? "Check-in has not opened" : "Check-in closed";
+      container.innerHTML = `<div class="portal-event"><div><span class="portal-pill">${escapeHtml(eventStatus(event.status))}</span><h3>${escapeHtml(event.title)}</h3><p><strong>Event starts:</strong> ${escapeHtml(formatDate(event.starts_at))}</p><p class="portal-muted">Check-in window: ${escapeHtml(formatDate(event.check_in_opens_at))} to ${escapeHtml(formatDate(event.check_in_closes_at))}</p></div><button class="btn primary" id="check-in-button" ${!open || data.checkedIn ? "disabled" : ""}>${checkInLabel}</button></div>`;
       $("check-in-button")?.addEventListener("click", () => checkInForEvent(event.id));
       if (event.status === "teams_published" && data.assignment) {
         show("assignment-card", true);
@@ -112,7 +117,14 @@
     try {
       const {events} = await api("admin/events");
       const body = $("events-body");
-      body.innerHTML = events.map((event) => `<tr><td>${escapeHtml(event.title)}<br><span class="portal-muted">${escapeHtml(formatDate(event.starts_at))}</span></td><td>${escapeHtml(event.status.replaceAll("_", " "))}</td><td>${event.check_in_count}</td><td><div class="portal-actions"><button class="btn ghost admin-event-action" data-id="${event.id}" data-action="open">Open</button><button class="btn ghost admin-event-action" data-id="${event.id}" data-action="close">Close</button><select class="portal-team-size" data-event-id="${event.id}" aria-label="Players per team"><option value="4">4v4</option><option value="5">5v5</option><option value="6">6v6 override</option></select><button class="btn secondary admin-event-action" data-id="${event.id}" data-action="generate">Generate Teams</button><button class="btn primary admin-event-action" data-id="${event.id}" data-action="publish">Publish</button><button class="btn ghost admin-event-action" data-id="${event.id}" data-action="view">View</button></div></td></tr>`).join("") || '<tr><td colspan="4">No events created.</td></tr>';
+      body.innerHTML = events.map((event) => {
+        const canOpen = ["draft","check_in_closed"].includes(event.status);
+        const canClose = event.status === "check_in_open";
+        const canGenerate = ["check_in_closed","teams_generated"].includes(event.status);
+        const canPublish = event.status === "teams_generated";
+        const canReview = ["teams_generated","teams_published","completed"].includes(event.status);
+        return `<tr><td>${escapeHtml(event.title)}<br><span class="portal-muted">${escapeHtml(formatDate(event.starts_at))}</span></td><td>${escapeHtml(eventStatus(event.status))}</td><td>${event.check_in_count}</td><td><div class="portal-actions"><button class="btn ghost admin-event-action" data-id="${event.id}" data-action="open" ${canOpen ? "" : "disabled"}>Open Check-in</button><button class="btn ghost admin-event-action" data-id="${event.id}" data-action="close" ${canClose ? "" : "disabled"}>Close Check-in</button><select class="portal-team-size" data-event-id="${event.id}" aria-label="Players per team" ${canGenerate ? "" : "disabled"}><option value="4">4v4</option><option value="5">5v5</option><option value="6">6v6 override</option></select><button class="btn secondary admin-event-action" data-id="${event.id}" data-action="generate" ${canGenerate ? "" : "disabled"}>Generate Teams</button><button class="btn primary admin-event-action" data-id="${event.id}" data-action="publish" ${canPublish ? "" : "disabled"}>Publish Teams</button><button class="btn ghost admin-event-action" data-id="${event.id}" data-action="view" ${canReview ? "" : "disabled"}>Review Teams</button></div></td></tr>`;
+      }).join("") || '<tr><td colspan="4">No events created.</td></tr>';
       document.querySelectorAll(".admin-event-action").forEach((button) => button.addEventListener("click", () => {
         const teamSize = Number(document.querySelector(`.portal-team-size[data-event-id="${button.dataset.id}"]`)?.value || 0);
         adminAction(button.dataset.id, button.dataset.action, teamSize);
@@ -132,7 +144,8 @@
     setStatus("Updating the event…");
     try {
       await api("admin/action", {method:"POST", body:JSON.stringify({eventId, action, teamSize})});
-      setStatus(action === "generate" ? `Random ${teamSize}v${teamSize} teams generated. Change the format and generate again if needed.` : "Event updated.", "success");
+      const successMessage = {open:"Check-in is open. Players can now confirm attendance in the Player Portal.",close:"Check-in is closed. Choose the format and generate teams.",publish:"Teams are published in the Player Portal and on Tonight’s Teams."}[action];
+      setStatus(action === "generate" ? `Random ${teamSize}v${teamSize} teams generated. Review them before publishing, or change the format and generate again.` : successMessage || "Event updated.", "success");
       await Promise.all([loadAdminEvents(), loadEventTeams(eventId)]);
     } catch (error) { setStatus(error.message, "error"); }
   }

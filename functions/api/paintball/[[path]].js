@@ -150,10 +150,11 @@ async function saveProfile(request, env) {
 async function currentEvent(request, env) {
   const user = await requireUser(request, env);
   const event = await env.PAINTBALL_DB.prepare(`
-    SELECT id,title,starts_at,check_in_closes_at,status FROM pb_events
+    SELECT id,title,starts_at,check_in_opens_at,check_in_closes_at,status FROM pb_events
     WHERE status IN ('check_in_open','check_in_closed','teams_generated','teams_published')
+      AND starts_at >= ?
     ORDER BY starts_at LIMIT 1
-  `).first();
+  `).bind(new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString()).first();
   if (!event) return json({event:null,checkedIn:false,assignment:null});
   const checkedIn = !!(await env.PAINTBALL_DB.prepare("SELECT 1 FROM pb_check_ins WHERE event_id=? AND user_id=?").bind(event.id,user.id).first());
   let assignment = null;
@@ -216,6 +217,9 @@ async function adminAction(request, env) {
   const event = await env.PAINTBALL_DB.prepare("SELECT * FROM pb_events WHERE id=?").bind(eventId).first();
   if (!event) return error("Event not found.",404);
   if (["open","close","publish"].includes(action)) {
+    if (action === "open" && !["draft","check_in_closed"].includes(event.status)) return error("Check-in cannot be opened from the event's current status.");
+    if (action === "close" && event.status !== "check_in_open") return error("Check-in is not currently open.");
+    if (action === "publish" && event.status !== "teams_generated") return error("Generate and review the teams before publishing.");
     const next = {open:"check_in_open",close:"check_in_closed",publish:"teams_published"}[action];
     if (action === "publish" && !(await env.PAINTBALL_DB.prepare("SELECT 1 FROM pb_assignments WHERE event_id=?").bind(eventId).first())) return error("Generate teams before publishing them.");
     await env.PAINTBALL_DB.prepare("UPDATE pb_events SET status=? WHERE id=?").bind(next,eventId).run();
