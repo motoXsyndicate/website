@@ -252,7 +252,6 @@ async function createBracket(env, eventId) {
   const assignmentRows = await env.PAINTBALL_DB.prepare("SELECT DISTINCT team_number FROM pb_assignments WHERE event_id=? AND is_reserve=0 ORDER BY team_number").bind(eventId).all();
   const teams = assignmentRows.results.map((row) => row.team_number);
   if (teams.length < 2) throw new Error("Generate at least two complete teams before creating a bracket.");
-  if (![2,4,8].includes(teams.length)) throw new Error("Full placement brackets require exactly 2, 4, or 8 teams. Adjust the team size or reserve pool, then generate again.");
   const matches = [];
   const add = (round,number,label,team1=null,team2=null,placementWinner=null,placementLoser=null) => {
     const match = {id:crypto.randomUUID(),round,number,label,team1,team2,status:team1 && team2 ? "ready" : "pending",nextId:null,nextSlot:null,loserNextId:null,loserNextSlot:null,placementWinner,placementLoser};
@@ -272,7 +271,7 @@ async function createBracket(env, eventId) {
     const final = add(2,1,"Championship",null,null,1,2);
     const third = add(2,2,"Third Place",null,null,3,4);
     connect(semi1,final,1,third,1); connect(semi2,final,2,third,2);
-  } else {
+  } else if (teams.length === 8) {
     rounds = 3;
     const quarterfinals = [
       add(1,1,"Quarterfinal 1",teams[0],teams[7]), add(1,2,"Quarterfinal 2",teams[3],teams[4]),
@@ -287,6 +286,19 @@ async function createBracket(env, eventId) {
     const seventh = add(3,4,"Seventh Place",null,null,7,8);
     connect(championshipSemis[0],final,1,third,1); connect(championshipSemis[1],final,2,third,2);
     connect(consolationSemis[0],fifth,1,seventh,1); connect(consolationSemis[1],fifth,2,seventh,2);
+  } else {
+    const rotation = [...teams];
+    if (rotation.length % 2) rotation.push(null);
+    rounds = rotation.length - 1;
+    for (let round = 0; round < rounds; round++) {
+      let matchNumber = 1;
+      for (let index = 0; index < rotation.length / 2; index++) {
+        const team1 = rotation[index];
+        const team2 = rotation[rotation.length - 1 - index];
+        if (team1 && team2) add(round + 1,matchNumber++,`Round Robin · Round ${round + 1}`,team1,team2);
+      }
+      rotation.splice(1,0,rotation.pop());
+    }
   }
   const now = new Date().toISOString();
   const statements = [
@@ -308,6 +320,31 @@ async function bracketData(env, eventId) {
 async function placementData(env, eventId) {
   const result = await env.PAINTBALL_DB.prepare("SELECT team_number,place FROM pb_placements WHERE event_id=? ORDER BY place").bind(eventId).all();
   return result.results;
+}
+
+async function refreshRoundRobinPlacements(env, eventId) {
+  const result = await env.PAINTBALL_DB.prepare("SELECT team1_number,team2_number,score1,score2,status,label FROM pb_bracket_matches WHERE event_id=? ORDER BY round_number,match_number").bind(eventId).all();
+  const matches = result.results;
+  if (!matches.length || !matches[0].label.startsWith("Round Robin")) return;
+  if (matches.some((match) => match.status !== "completed")) return;
+  const standings = new Map();
+  const rowFor = (team) => {
+    if (!standings.has(team)) standings.set(team,{team,wins:0,losses:0,pointsFor:0,pointsAgainst:0});
+    return standings.get(team);
+  };
+  matches.forEach((match) => {
+    const first = rowFor(match.team1_number);
+    const second = rowFor(match.team2_number);
+    first.pointsFor += match.score1; first.pointsAgainst += match.score2;
+    second.pointsFor += match.score2; second.pointsAgainst += match.score1;
+    if (match.score1 > match.score2) { first.wins++; second.losses++; }
+    else { second.wins++; first.losses++; }
+  });
+  const ranked = [...standings.values()].sort((a,b) => b.wins-a.wins || (b.pointsFor-b.pointsAgainst)-(a.pointsFor-a.pointsAgainst) || b.pointsFor-a.pointsFor || a.team-b.team);
+  const now = new Date().toISOString();
+  const statements = [env.PAINTBALL_DB.prepare("DELETE FROM pb_placements WHERE event_id=?").bind(eventId)];
+  ranked.forEach((row,index) => statements.push(env.PAINTBALL_DB.prepare("INSERT INTO pb_placements(event_id,team_number,place,created_at) VALUES (?,?,?,?)").bind(eventId,row.team,index+1,now)));
+  await env.PAINTBALL_DB.batch(statements);
 }
 
 async function adminBracket(request, env) {
@@ -345,6 +382,7 @@ async function adminBracket(request, env) {
   await env.PAINTBALL_DB.batch(statements);
   const nextMatches = [...new Set([match.next_match_id,match.loser_next_match_id].filter(Boolean))];
   for (const nextId of nextMatches) await env.PAINTBALL_DB.prepare("UPDATE pb_bracket_matches SET status=CASE WHEN team1_number IS NOT NULL AND team2_number IS NOT NULL THEN 'ready' ELSE 'pending' END WHERE id=?").bind(nextId).run();
+  await refreshRoundRobinPlacements(env,data.eventId);
   return json({ok:true,winner,loser,matches:await bracketData(env,data.eventId),placements:await placementData(env,data.eventId)});
 }
 

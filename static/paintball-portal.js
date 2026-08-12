@@ -152,9 +152,10 @@
     show("bracket-card", matches.length > 0);
     if (!matches.length) return;
     const maxRound = Math.max(...matches.map((match) => match.round_number));
+    const roundRobin = matches[0]?.label?.startsWith("Round Robin");
     const rounds = {};
     matches.forEach((match) => (rounds[match.round_number] ||= []).push(match));
-    const roundName = (round) => round === maxRound ? "Final" : round === maxRound - 1 ? "Semifinals" : round === maxRound - 2 ? "Quarterfinals" : `Round ${round}`;
+    const roundName = (round) => roundRobin ? `Round ${round}` : round === maxRound ? "Placement Finals" : round === maxRound - 1 ? "Semifinals" : round === maxRound - 2 ? "Quarterfinals" : `Round ${round}`;
     $("bracket-board").innerHTML = Object.entries(rounds).map(([round, roundMatches]) => `<section class="portal-round"><h3>${roundName(Number(round))}</h3>${roundMatches.map((match) => {
       const team1 = match.team1_number ? `Team ${match.team1_number}` : "TBD";
       const team2 = match.team2_number ? `Team ${match.team2_number}` : "TBD";
@@ -179,7 +180,7 @@
     try {
       const {matches,placements} = await api("admin/bracket", {method:"POST",body:JSON.stringify({action:"create",eventId})});
       renderBracket(eventId,matches,placements);
-      setStatus("Placement bracket created. Enter scores and both winners and losing teams will move into the correct placement matches.", "success");
+      setStatus(matches[0]?.label?.startsWith("Round Robin") ? "Round-robin schedule created. Odd team counts receive one rotating bye each round." : "Placement bracket created. Winners and losing teams will move into the correct placement matches.", "success");
     } catch (error) { setStatus(error.message, "error"); }
   }
 
@@ -190,7 +191,7 @@
     try {
       const {matches,placements} = await api("admin/bracket", {method:"POST",body:JSON.stringify({action:"result",eventId,matchId,score1,score2})});
       renderBracket(eventId,matches,placements);
-      setStatus("Result saved and the winner advanced.", "success");
+      setStatus(matches[0]?.label?.startsWith("Round Robin") ? "Round-robin result saved. Final standings will appear after every match is complete." : "Result saved and the teams advanced to their next placement matches.", "success");
     } catch (error) { setStatus(error.message, "error"); }
   }
 

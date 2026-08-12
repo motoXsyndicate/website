@@ -83,6 +83,12 @@ ORGANIZER FLOW
 8. Complete the championship and placement matches to rank every team.
 9. Select Publish when the team assignments are ready for players.
 
+The tournament tool adapts to the generated team count. Two, four, or eight
+teams use a full placement bracket. Other team counts use a round robin so
+every team can be ranked. An odd number of teams receives one rotating bye
+per round. Round-robin ties are broken by wins, score differential, points
+scored, then team number.
+
 Players beyond the last complete team become rotating reserves.
 At least eight checked-in players are required for 4v4 and ten for 5v5.
 
