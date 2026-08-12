@@ -85,7 +85,7 @@
         const assignment = event.status === "teams_published" && (event.is_reserve || event.team_number) ? (event.is_reserve ? "Rotating reserve" : `Team ${event.team_number}`) : null;
         const registerLabel = event.registered ? "Registered" : canRegister ? "Register for This Event" : "Registration Closed";
         const confirmLabel = event.confirmed ? "Attendance Confirmed" : confirmationOpen ? "Confirm Attendance" : now < new Date(event.check_in_opens_at) ? "Confirmation Opens Later" : "Confirmation Closed";
-        if (!selectedEvent) return `<article class="portal-card portal-event-card portal-event-summary"><div><span class="portal-pill">${escapeHtml(eventStatus(event.status))}</span><h3>${escapeHtml(event.title)}</h3><p><strong>${escapeHtml(formatDate(event.starts_at))}</strong></p><p class="portal-muted">Confirmation: ${escapeHtml(formatDate(event.check_in_opens_at))} to ${escapeHtml(formatDate(event.check_in_closes_at))}</p><p class="portal-event-counts">${event.registration_count} registered · ${event.confirmation_count} confirmed</p></div><a class="btn primary" href="/paintball/register/?eventId=${encodeURIComponent(event.id)}">View Event</a></article>`;
+        if (!selectedEvent) return `<article class="portal-card portal-event-card portal-event-summary"><div><span class="portal-pill">${event.team_size}v${event.team_size}</span><h3>${escapeHtml(event.title)}</h3><p><strong>${escapeHtml(formatDate(event.starts_at))}</strong></p><p>${escapeHtml(event.match_format)}</p><p class="portal-muted">Estimated duration: ${escapeHtml(event.estimated_duration)}</p><p class="portal-event-counts">${event.registration_count} registered · ${event.confirmation_count} confirmed</p></div><a class="btn primary" href="/paintball/register/?eventId=${encodeURIComponent(event.id)}">View Event</a></article>`;
         const eventBoardButton = ["teams_published","completed"].includes(event.status) ? `<a class="btn secondary" href="/paintball/event/?eventId=${encodeURIComponent(event.id)}">View Teams &amp; Bracket</a>` : "";
         return `<div class="portal-detail-back"><a href="/paintball/register/">← Back to All Events</a></div><article class="portal-card portal-event-card"><div class="portal-event"><div><span class="portal-pill">${escapeHtml(eventStatus(event.status))}</span><h3>${escapeHtml(event.title)}</h3><div class="portal-event-facts"><p><span>Event starts</span><strong>${escapeHtml(formatDate(event.starts_at))}</strong></p><p><span>Confirmation opens</span><strong>${escapeHtml(formatDate(event.check_in_opens_at))}</strong></p><p><span>Confirmation closes</span><strong>${escapeHtml(formatDate(event.check_in_closes_at))}</strong></p><p><span>Expected format</span><strong>Flexible 4v4 or 5v5</strong></p></div><p class="portal-event-counts">${event.registration_count} registered · ${event.confirmation_count} confirmed</p>${assignment ? `<p class="portal-assignment"><strong>Your assignment:</strong> ${escapeHtml(assignment)}</p>` : ""}</div><div class="portal-event-buttons"><button class="btn primary player-event-action" data-action="register" data-id="${event.id}" ${event.registered || !canRegister ? "disabled" : ""}>${registerLabel}</button><button class="btn secondary player-event-action" data-action="confirm" data-id="${event.id}" ${!event.registered || event.confirmed || !confirmationOpen ? "disabled" : ""}>${confirmLabel}</button><button class="btn ghost player-event-action" data-action="players" data-id="${event.id}">See Registered Players</button>${eventBoardButton}</div></div><div id="event-players-${event.id}" class="portal-attendees portal-hidden"></div></article>`;
       }).join("");
@@ -132,7 +132,8 @@
         title:$("event-title").value.trim(),
         startsAt:new Date($("event-start").value).toISOString(),
         opensAt:new Date($("event-open").value).toISOString(),
-        closesAt:new Date($("event-close").value).toISOString()
+        closesAt:new Date($("event-close").value).toISOString(),
+        teamSize:Number($("event-team-size").value), description:$("event-description").value.trim(), matchFormat:$("event-match-format").value.trim(), estimatedDuration:$("event-duration").value.trim()
       })});
       event.target.reset(); setStatus("Event created and posted. Players can register immediately.", "success"); await loadAdminEvents();
     } catch (error) { setStatus(error.message, "error"); }
@@ -148,11 +149,10 @@
         const canGenerate = ["check_in_closed","teams_generated"].includes(event.status);
         const canPublish = event.status === "teams_generated";
         const canReview = ["teams_generated","teams_published","completed"].includes(event.status);
-        return `<tr><td>${escapeHtml(event.title)}<br><span class="portal-muted">Hosted by ${escapeHtml(event.host_name)} · ${escapeHtml(formatDate(event.starts_at))}</span></td><td>${escapeHtml(eventStatus(event.status))}</td><td>${event.registration_count} / ${event.check_in_count}</td><td><div class="portal-actions">${canOpen ? `<button class="btn ghost admin-event-action" data-id="${event.id}" data-action="open">Post Legacy Draft</button>` : ""}<button class="btn ghost admin-event-action" data-id="${event.id}" data-action="close" ${canClose ? "" : "disabled"}>Close Confirmation</button><select class="portal-team-size" data-event-id="${event.id}" aria-label="Players per team" ${canGenerate ? "" : "disabled"}><option value="4">4v4</option><option value="5">5v5</option><option value="6">6v6 override</option></select><button class="btn secondary admin-event-action" data-id="${event.id}" data-action="generate" ${canGenerate ? "" : "disabled"}>Generate Teams</button><button class="btn primary admin-event-action" data-id="${event.id}" data-action="publish" ${canPublish ? "" : "disabled"}>Publish Teams</button><button class="btn ghost admin-event-action" data-id="${event.id}" data-action="view" ${canReview ? "" : "disabled"}>Review Teams</button></div></td></tr>`;
+        return `<tr><td>${escapeHtml(event.title)}<br><span class="portal-muted">${event.team_size}v${event.team_size} · Hosted by ${escapeHtml(event.host_name)} · ${escapeHtml(formatDate(event.starts_at))}</span></td><td>${escapeHtml(eventStatus(event.status))}</td><td>${event.registration_count} / ${event.check_in_count}</td><td><div class="portal-actions">${canOpen ? `<button class="btn ghost admin-event-action" data-id="${event.id}" data-action="open">Post Legacy Draft</button>` : ""}<button class="btn ghost admin-event-action" data-id="${event.id}" data-action="close" ${canClose ? "" : "disabled"}>Close Confirmation</button><button class="btn secondary admin-event-action" data-id="${event.id}" data-action="generate" ${canGenerate ? "" : "disabled"}>Generate ${event.team_size}v${event.team_size} Teams</button><button class="btn primary admin-event-action" data-id="${event.id}" data-action="publish" ${canPublish ? "" : "disabled"}>Publish Teams</button><button class="btn ghost admin-event-action" data-id="${event.id}" data-action="view" ${canReview ? "" : "disabled"}>Review Teams</button></div></td></tr>`;
       }).join("") || '<tr><td colspan="4">No events created.</td></tr>';
       document.querySelectorAll(".admin-event-action").forEach((button) => button.addEventListener("click", () => {
-        const teamSize = Number(document.querySelector(`.portal-team-size[data-event-id="${button.dataset.id}"]`)?.value || 0);
-        adminAction(button.dataset.id, button.dataset.action, teamSize);
+        adminAction(button.dataset.id, button.dataset.action);
       }));
     } catch (error) { setStatus(error.message, "error"); }
   }
@@ -202,13 +202,13 @@
     } catch (error) { setStatus(error.message,"error"); }
   }
 
-  async function adminAction(eventId, action, teamSize = null) {
+  async function adminAction(eventId, action) {
     if (action === "view") return loadEventTeams(eventId);
     setStatus("Updating the event…");
     try {
-      await api("admin/action", {method:"POST", body:JSON.stringify({eventId, action, teamSize})});
+      await api("admin/action", {method:"POST", body:JSON.stringify({eventId, action})});
       const successMessage = {open:"The event is posted. Players can register now and confirm during the scheduled confirmation window.",close:"Confirmation is closed. Choose the format and generate teams from confirmed players.",publish:"Teams are published in the Player Portal and on Tonight’s Teams."}[action];
-      setStatus(action === "generate" ? `Random ${teamSize}v${teamSize} teams generated. Review them before publishing, or change the format and generate again.` : successMessage || "Event updated.", "success");
+      setStatus(action === "generate" ? "Random teams generated using this event’s posted format. Review them before publishing." : successMessage || "Event updated.", "success");
       await Promise.all([loadAdminEvents(), loadEventTeams(eventId)]);
     } catch (error) { setStatus(error.message, "error"); }
   }

@@ -53,6 +53,10 @@ CREATE TABLE IF NOT EXISTS pb_events (
   starts_at TEXT NOT NULL,
   check_in_opens_at TEXT NOT NULL,
   check_in_closes_at TEXT NOT NULL,
+  team_size INTEGER NOT NULL DEFAULT 4 CHECK(team_size IN (3,4,5)),
+  description TEXT,
+  match_format TEXT,
+  estimated_duration TEXT,
   status TEXT NOT NULL DEFAULT 'draft' CHECK(status IN ('draft','check_in_open','check_in_closed','teams_generated','teams_published','completed','cancelled')),
   created_by TEXT NOT NULL REFERENCES pb_users(id),
   created_at TEXT NOT NULL

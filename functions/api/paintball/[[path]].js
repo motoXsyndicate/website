@@ -187,7 +187,7 @@ async function playerEvents(request, env) {
   const user = await requireUser(request, env);
   const cutoff = new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString();
   const result = await env.PAINTBALL_DB.prepare(`
-    SELECT e.id,e.title,e.starts_at,e.check_in_opens_at,e.check_in_closes_at,e.status,
+    SELECT e.id,e.title,e.starts_at,e.check_in_opens_at,e.check_in_closes_at,e.team_size,e.description,e.match_format,e.estimated_duration,e.status,
       CASE WHEN r.user_id IS NULL THEN 0 ELSE 1 END AS registered,
       CASE WHEN c.user_id IS NULL THEN 0 ELSE 1 END AS confirmed,
       a.team_number,a.is_reserve,
@@ -261,9 +261,11 @@ async function adminEvents(request, env) {
     return json({events:result.results});
   }
   const data = await body(request);
-  if (!data.title || !data.startsAt || !data.opensAt || !data.closesAt) return error("Complete every event field.");
+  if (!data.title || !data.startsAt || !data.opensAt || !data.closesAt || !data.description || !data.matchFormat || !data.estimatedDuration) return error("Complete every event field.");
+  const teamSize = Number(data.teamSize);
+  if (![3,4,5].includes(teamSize)) return error("Choose 3v3, 4v4, or 5v5.");
   if (!(new Date(data.opensAt) < new Date(data.closesAt) && new Date(data.closesAt) <= new Date(data.startsAt))) return error("Confirmation must open before it closes, and close before the event starts.");
-  await env.PAINTBALL_DB.prepare("INSERT INTO pb_events(id,title,starts_at,check_in_opens_at,check_in_closes_at,status,created_by,created_at) VALUES (?,?,?,?,?,'check_in_open',?,?)").bind(crypto.randomUUID(),String(data.title).slice(0,100),data.startsAt,data.opensAt,data.closesAt,organizer.id,new Date().toISOString()).run();
+  await env.PAINTBALL_DB.prepare("INSERT INTO pb_events(id,title,starts_at,check_in_opens_at,check_in_closes_at,team_size,description,match_format,estimated_duration,status,created_by,created_at) VALUES (?,?,?,?,?,?,?,?,?,'check_in_open',?,?)").bind(crypto.randomUUID(),String(data.title).slice(0,100),data.startsAt,data.opensAt,data.closesAt,teamSize,String(data.description).trim().slice(0,800),String(data.matchFormat).trim().slice(0,160),String(data.estimatedDuration).trim().slice(0,80),organizer.id,new Date().toISOString()).run();
   return json({ok:true});
 }
 
@@ -277,7 +279,7 @@ function shuffle(players) {
 }
 
 async function adminAction(request, env) {
-  const {eventId,action,teamSize} = await body(request);
+  const {eventId,action} = await body(request);
   const {event} = await requireEventOwner(request,env,eventId);
   if (["open","close","publish"].includes(action)) {
     if (action === "open" && !["draft","check_in_closed"].includes(event.status)) return error("This event cannot be posted from its current status.");
@@ -290,7 +292,8 @@ async function adminAction(request, env) {
   }
   if (action !== "generate") return error("Unknown organizer action.");
   if (!["check_in_closed","teams_generated"].includes(event.status)) return error("Close confirmation before generating teams.");
-  if (!Number.isInteger(teamSize) || teamSize < 4 || teamSize > 6) return error("Choose a team size between 4 and 6 players.");
+  const teamSize = event.team_size;
+  if (![3,4,5].includes(teamSize)) return error("This event does not have a valid team format.");
   const checked = await env.PAINTBALL_DB.prepare("SELECT user_id FROM pb_check_ins WHERE event_id=?").bind(eventId).all();
   if (checked.results.length < teamSize * 2) return error(`At least ${teamSize * 2} confirmed players are required for ${teamSize}v${teamSize}.`);
   const players = shuffle(checked.results);
