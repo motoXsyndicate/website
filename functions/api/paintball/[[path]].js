@@ -174,6 +174,20 @@ async function checkIn(request, env) {
   return json({ok:true});
 }
 
+async function publicEvent(request, env) {
+  const eventId = new URL(request.url).searchParams.get("eventId");
+  const event = eventId
+    ? await env.PAINTBALL_DB.prepare("SELECT id,title,starts_at,status FROM pb_events WHERE id=? AND status IN ('teams_published','completed')").bind(eventId).first()
+    : await env.PAINTBALL_DB.prepare("SELECT id,title,starts_at,status FROM pb_events WHERE status IN ('teams_published','completed') ORDER BY starts_at DESC LIMIT 1").first();
+  if (!event) return json({event:null,assignments:[],matches:[],placements:[]});
+  const [assignments,matches,placements] = await Promise.all([
+    env.PAINTBALL_DB.prepare(`SELECT a.team_number,a.is_reserve,p.in_game_name FROM pb_assignments a JOIN pb_profiles p ON p.user_id=a.user_id WHERE a.event_id=? ORDER BY a.is_reserve,a.team_number,lower(p.in_game_name)`).bind(event.id).all(),
+    env.PAINTBALL_DB.prepare("SELECT id,round_number,match_number,team1_number,team2_number,score1,score2,winner_team_number,status,label FROM pb_bracket_matches WHERE event_id=? ORDER BY round_number,match_number").bind(event.id).all(),
+    env.PAINTBALL_DB.prepare("SELECT team_number,place FROM pb_placements WHERE event_id=? ORDER BY place").bind(event.id).all()
+  ]);
+  return json({event,assignments:assignments.results,matches:matches.results,placements:placements.results});
+}
+
 async function adminEvents(request, env) {
   const admin = await requireAdmin(request, env);
   if (request.method === "GET") {
@@ -398,6 +412,7 @@ export async function onRequest(context) {
     if (route === "profile" && request.method === "POST") return await saveProfile(request,env);
     if (route === "event/current" && request.method === "GET") return await currentEvent(request,env);
     if (route === "check-in" && request.method === "POST") return await checkIn(request,env);
+    if (route === "event/public" && request.method === "GET") return await publicEvent(request,env);
     if (route === "admin/events" && ["GET","POST"].includes(request.method)) return await adminEvents(request,env);
     if (route === "admin/action" && request.method === "POST") return await adminAction(request,env);
     if (route === "admin/teams" && request.method === "GET") return await adminTeams(request,env);
