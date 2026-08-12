@@ -162,6 +162,15 @@ async function currentEvent(request, env) {
   return json({event,checkedIn,assignment:assignment || null});
 }
 
+async function eventPlayers(request, env) {
+  await requireUser(request, env);
+  const eventId = new URL(request.url).searchParams.get("eventId");
+  const event = await env.PAINTBALL_DB.prepare("SELECT id FROM pb_events WHERE id=? AND status IN ('check_in_open','check_in_closed','teams_generated','teams_published','completed')").bind(eventId).first();
+  if (!event) return error("This pickup night is not available.",404);
+  const result = await env.PAINTBALL_DB.prepare(`SELECT p.in_game_name FROM pb_check_ins c JOIN pb_profiles p ON p.user_id=c.user_id WHERE c.event_id=? ORDER BY lower(p.in_game_name)`).bind(eventId).all();
+  return json({players:result.results,count:result.results.length});
+}
+
 async function checkIn(request, env) {
   const user = await requireUser(request, env);
   const data = await body(request);
@@ -415,6 +424,7 @@ export async function onRequest(context) {
     if (route === "me" && request.method === "GET") return await getMe(request,env);
     if (route === "profile" && request.method === "POST") return await saveProfile(request,env);
     if (route === "event/current" && request.method === "GET") return await currentEvent(request,env);
+    if (route === "event/players" && request.method === "GET") return await eventPlayers(request,env);
     if (route === "check-in" && request.method === "POST") return await checkIn(request,env);
     if (route === "event/public" && request.method === "GET") return await publicEvent(request,env);
     if (route === "admin/events" && ["GET","POST"].includes(request.method)) return await adminEvents(request,env);
