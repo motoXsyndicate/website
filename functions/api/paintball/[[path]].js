@@ -126,7 +126,7 @@ async function discordCallback(request, env) {
   const sessionHash = await sha256(sessionToken);
   const expires = new Date(Date.now() + 30 * 86400000).toISOString();
   await env.PAINTBALL_DB.batch([
-    env.PAINTBALL_DB.prepare("DELETE FROM pb_sessions WHERE expires_at <= ? OR user_id = ?").bind(now, userId),
+    env.PAINTBALL_DB.prepare("DELETE FROM pb_sessions WHERE expires_at <= ?").bind(now),
     env.PAINTBALL_DB.prepare("INSERT INTO pb_sessions (token_hash, user_id, expires_at, created_at) VALUES (?, ?, ?, ?)").bind(sessionHash,userId,expires,now)
   ]);
   const headers = new Headers({Location:`${url.origin}/paintball/register/`,"Cache-Control":"no-store"});

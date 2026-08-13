@@ -1,5 +1,5 @@
 {
   "version": 1,
-  "include": ["/api/paintball/*"],
+  "include": ["/api/paintball/*", "/api/mxb/*", "/mxb/admin/*", "/mxb/championship/*"],
   "exclude": []
 }

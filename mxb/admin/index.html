@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MotoXsyndicate Results Tool</title>
+<style>
+:root{--bg:#050814;--panel:#151c3f;--panel2:#1f2a62;--line:#4052a3;--text:#f7f8ff;--muted:#c8d2ff;--red:#ff4059;--gold:#f6c453;--silver:#c9d2e3;--bronze:#cd7f32;--green:#38d996;}
+*{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:radial-gradient(circle at top,#11183a 0,#050814 45%,#02040b 100%);color:var(--text)}
+.wrap{max-width:1260px;margin:0 auto;padding:28px 20px 40px}.brand{font-weight:900;letter-spacing:3px}.brand span{color:var(--red)}h1{font-size:40px;margin:8px 0 4px}.sub{color:var(--muted);font-weight:700;margin-bottom:12px}.btn{border:1px solid #5267c9;background:#26347b;color:white;padding:12px 18px;border-radius:10px;font-weight:900;cursor:pointer}.btn.orange{background:linear-gradient(135deg,#ff3158,#ff9f2f);border:0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:22px}.card{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:16px;padding:20px}.field{margin-bottom:14px}label{display:block;color:var(--muted);font-weight:900;font-size:13px;letter-spacing:1px;margin-bottom:7px;text-transform:uppercase}input{width:100%;background:#070b1b;color:white;border:1px solid #5364bd;border-radius:8px;padding:11px;font-weight:800}.riderRow{display:grid;grid-template-columns:1.7fr .75fr .75fr 44px;gap:10px;align-items:end;margin-bottom:12px}.xbtn{height:40px;border-radius:10px;border:1px solid #5d73dc;background:#273887;color:white;font-weight:900}.actions{display:flex;gap:10px;flex-wrap:wrap}.note{color:var(--muted);font-weight:800;margin-top:12px}.importBox{border:1px dashed #6074df;background:#101738;border-radius:14px;padding:14px;margin:14px 0}.importTitle{font-weight:1000;letter-spacing:1px;text-transform:uppercase;color:white;margin-bottom:8px}.small{font-size:12px;color:var(--muted);font-weight:800;line-height:1.35}.fileInput{display:block;width:100%;margin:10px 0;color:var(--muted);font-weight:800}.importRow{display:flex;gap:10px;flex-wrap:wrap}.status{margin-top:8px;color:var(--green);font-weight:900;font-size:13px}.sheet{background:#0a0f24;border:1px solid #4353a4;border-radius:16px;padding:22px;min-height:620px}.resultsPoster{border:1px solid #4154a7;border-radius:16px;padding:26px;background:linear-gradient(180deg,#101632,#070b19);text-align:center}.posterBrand{font-weight:900;letter-spacing:2px;font-size:15px}.posterBrand span{color:var(--red)}.eventTitle{font-size:34px;line-height:1.2;margin:18px 0 10px;font-weight:1000;letter-spacing:2px;text-transform:uppercase}.eventMeta{color:var(--muted);font-weight:900;margin:8px}.sectionTitle{text-align:left;color:white;letter-spacing:2px;font-weight:1000;font-size:14px;margin:28px 0 12px;text-transform:uppercase}.podium{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:12px;margin:20px 0 22px}.podiumCard{background:#171d34;border:1px solid #333c6d;border-radius:14px;padding:16px;text-align:left;min-height:116px}.podiumCard.first{border-color:var(--gold);box-shadow:0 0 0 1px rgba(246,196,83,.35)}.podiumCard.second{border-color:var(--silver)}.podiumCard.third{border-color:var(--bronze)}.place{font-size:13px;font-weight:1000;letter-spacing:1px;color:var(--muted);text-transform:uppercase}.rName{font-size:24px;font-weight:1000;margin:9px 0 5px;word-break:break-word}.scoreLine{font-size:16px;color:var(--muted);font-weight:1000}.medal{font-size:26px;margin-right:6px}.overallTable{width:100%;border-collapse:collapse;text-align:left;margin-top:8px;font-size:14px}.overallTable th{color:var(--muted);font-size:12px;text-transform:uppercase;border-bottom:1px solid #354584;padding:9px}.overallTable td{border-bottom:1px solid #293564;padding:9px;font-weight:800}.overallTable td:first-child{font-weight:1000;color:white}.footer{margin-top:24px;color:var(--muted);font-size:16px;font-weight:1000}.empty{color:#8792c9;font-weight:900;padding:18px}.hiddenPrint{display:block}@media(max-width:900px){.grid{grid-template-columns:1fr}.podium{grid-template-columns:1fr}.eventTitle{font-size:28px}}@media print{body{background:white}.wrap{padding:0}.card,.hiddenPrint{display:none}.grid{display:block}.sheet{border:0;background:white;padding:0}.resultsPoster{color:white;width:100%;min-height:100vh;border-radius:0}.overallTable th,.overallTable td{color:white}.footer{color:white}}
+</style>
+<style>
+.xmlDrop{margin:10px 0;padding:22px;border:2px dashed #7187f5;border-radius:12px;text-align:center;background:#0b112c;color:#dbe2ff;font-weight:1000;cursor:pointer;transition:.18s}.xmlDrop.dragover{border-color:var(--green);background:#10293a;transform:translateY(-1px)}.xmlDrop strong{display:block;font-size:17px;margin-bottom:5px}
+.qualGrid{display:grid;grid-template-columns:.8fr 1.2fr;gap:22px;margin-top:22px}.qualStatus{font-weight:1000}.qualified{color:var(--green)}.dnq{color:#ff899d}.lapTime{font-variant-numeric:tabular-nums;font-weight:1000}@media(max-width:900px){.qualGrid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hiddenPrint">
+    <div class="brand">MOTO<span>X</span>SYNDICATE</div>
+    <h1>Results Tool</h1>
+    <div class="sub">Two-moto overall calculator • Highest points wins • Moto 2 tiebreaker</div>
+    <button class="btn" onclick="window.print()">Print / Save as PDF</button>
+    <button class="btn" onclick="downloadResultsFlyer()">Download Results Flyer PNG</button>
+    <button class="btn orange" onclick="location.href='/mxb/championship/'">Open Championship Manager</button>
+    <button class="btn orange" onclick="publishRoundToWebsite()">Publish Round to Website</button>
+    <button class="btn" onclick="mxbSignOut()">Sign out</button>
+    <div id="mxb-cloud-status" class="status">Checking MXB host access…</div>
+  </div>
+
+  <div class="grid">
+    <div class="card hiddenPrint">
+      <div class="field"><label>Event Name</label><input id="eventName" value="Stars and Stripes Shootout"></div>
+      <div class="field"><label>Event Date / Track</label><input id="eventInfo" value="July 5 • 2026 ARL Mount Morris, PA"></div>
+      <div class="field"><label>Class</label><input id="className" value="Open OEM Overall"></div>
+      <div class="importBox">
+        <div class="importTitle">Drop XML Race Results</div>
+        <div class="small">Add Moto 1 and Moto 2 together or one at a time. Every XML stays loaded until you press Clear Results, including results from multiple servers.</div>
+        <div class="xmlDrop" id="xmlDrop" onclick="document.getElementById('xmlFiles').click()"><strong>Drop XML files here</strong>add one file at a time or select multiple files</div>
+        <input id="xmlFiles" type="file" accept=".xml,text/xml,application/xml" multiple hidden>
+        <div class="importRow">
+          <button class="btn orange" onclick="document.getElementById('xmlFiles').click()">Choose XML Files</button>
+          <button class="btn" onclick="clearXmlImport()">Clear Results</button>
+        </div>
+        <div class="status" id="importStatus"></div>
+      </div>
+      <div id="riders"></div>
+      <div class="actions"><button class="btn" onclick="addRider()">+ Add Rider</button><button class="btn orange" onclick="calculate()">Calculate Overall</button><button class="btn" onclick="exportChampionshipRound()">Export Round for Championship</button><button class="btn" onclick="clearRiders()">Clear Riders</button></div>
+      <div class="note">Scoring: 1st=25, 2nd=22, 3rd=20, 4th=18, then 16,15,14... Enter a finishing position or DNS, DNF, DSQ. Status entries score 0 points. Highest total wins; Moto 2 is the tiebreaker.</div>
+    </div>
+
+    <div class="sheet">
+      <div class="resultsPoster" id="poster">
+        <div class="posterBrand">MOTO<span>X</span>SYNDICATE PRESENTS</div>
+        <div class="eventTitle" id="pEvent">STARS AND STRIPES<br>SHOOTOUT</div>
+        <div class="eventMeta" id="pInfo">July 5 • 2026 ARL Mount Morris, PA</div>
+        <div class="eventMeta" id="pClass">Open OEM Overall</div>
+
+        <div class="sectionTitle">🏆 Podium</div>
+        <div class="podium" id="podium"><div class="empty">Enter riders and finishes to generate podium.</div></div>
+
+        <div class="sectionTitle">Overall Results</div>
+        <table class="overallTable"><thead><tr><th>Overall</th><th>Rider</th><th>Moto 1</th><th>Moto 2</th><th>Points</th></tr></thead><tbody id="overallBody"></tbody></table>
+        <div class="footer">www.motoxsyndicate.com</div>
+      </div>
+    </div>
+  </div>
+  <div class="qualGrid">
+    <div class="card hiddenPrint">
+      <div class="importTitle">Qualifying Results</div>
+      <div class="small">Add qualifying XML files from one or multiple servers. The fastest valid lap for each rider is kept automatically and all riders are ranked together.</div>
+      <div class="xmlDrop" id="qualDrop" onclick="document.getElementById('qualFiles').click()"><strong>Drop qualifying XML files here</strong>add files together or one server at a time</div>
+      <input id="qualFiles" type="file" accept=".xml,text/xml,application/xml" multiple hidden>
+      <div class="importRow">
+        <button class="btn orange" onclick="document.getElementById('qualFiles').click()">Choose Qualifying XMLs</button>
+        <button class="btn" onclick="clearQualifying()">Clear Qualifying</button>
+      </div>
+      <div class="status" id="qualImportStatus"></div>
+      <div class="note">The top 35 fastest riders are marked QUALIFIED. All riders contained in the qualifying XMLs are included.</div>
+    </div>
+    <div class="sheet">
+      <div class="resultsPoster">
+        <div class="posterBrand">MOTO<span>X</span>SYNDICATE PRESENTS</div>
+        <div class="eventTitle">QUALIFYING RESULTS</div>
+        <div class="eventMeta" id="qualMeta">Upload qualifying XML files to calculate the combined order.</div>
+        <table class="overallTable"><thead><tr><th>Pos</th><th>#</th><th>Rider</th><th>Fastest Lap</th><th>Status</th></tr></thead><tbody id="qualBody"><tr><td colspan="5" class="empty">No qualifying results loaded.</td></tr></tbody></table>
+        <div class="footer">www.motoxsyndicate.com</div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+const pointsMap = {1:25,2:22,3:20,4:18,5:16,6:15,7:14,8:13,9:12,10:11,11:10,12:9,13:8,14:7,15:6,16:5,17:4,18:3,19:2,20:1};
+function pointsFor(pos){pos=parseInt(pos,10); return pointsMap[pos] || 0;}
+function parseMoto(value){
+ const raw=String(value||'').trim().toUpperCase();
+ if(raw==='') return {entered:false,display:'',points:0,sort:9999};
+ if(['DNS','DNF','DSQ'].includes(raw)) return {entered:true,display:raw,points:0,sort:999};
+ const pos=parseInt(raw,10);
+ if(!Number.isNaN(pos) && pos>0) return {entered:true,display:String(pos),points:pointsFor(pos),sort:pos};
+ if(raw==='0') return {entered:true,display:'DNS',points:0,sort:999};
+ return {entered:false,display:'',points:0,sort:9999};
+}
+const ridersDiv=document.getElementById('riders');
+const loadedXmlFiles=new Map();
+const loadedQualFiles=new Map();
+let currentRoundExport=[];
+let lastCalculatedResults=[];
+
+function addRider(name='',m1='',m2=''){
+ const row=document.createElement('div'); row.className='riderRow';
+ row.innerHTML=`<div><label>Rider</label><input class="riderName"></div><div><label>Moto 1</label><input class="m1" type="text" inputmode="text" placeholder="Place / DNS / DNF / DSQ"></div><div><label>Moto 2</label><input class="m2" type="text" inputmode="text" placeholder="Place / DNS / DNF / DSQ"></div><button class="xbtn" onclick="this.parentElement.remove(); calculate();">X</button>`;
+ ridersDiv.appendChild(row);
+ row.querySelector('.riderName').value = name || '';
+ row.querySelector('.m1').value = m1 || '';
+ row.querySelector('.m2').value = m2 || '';
+ row.querySelectorAll('input').forEach(i=>i.addEventListener('input', calculate));
+ calculate();
+}
+function clearRiders(){currentRoundExport=[];ridersDiv.innerHTML=''; addRider(); addRider(); addRider(); calculate();}
+function titleToLines(t){return (t||'Event Results').toUpperCase().replace(/\s+SHOOTOUT$/,' SHOOTOUT').replace(' STARS AND STRIPES ',' STARS AND STRIPES ').split(' ').reduce((a,w)=>{let line=a[a.length-1]||''; if((line+' '+w).trim().length>18){a.push(w)}else{a[a.length-1]=(line+' '+w).trim()} return a},['']).join('<br>');}
+function calculate(){
+ document.getElementById('pEvent').innerHTML = titleToLines(document.getElementById('eventName').value);
+ document.getElementById('pInfo').textContent = document.getElementById('eventInfo').value;
+ document.getElementById('pClass').textContent = document.getElementById('className').value;
+ const rows=[...document.querySelectorAll('.riderRow')];
+ let results=[];
+ rows.forEach(r=>{
+  const name=r.querySelector('.riderName').value.trim();
+  const m1=parseMoto(r.querySelector('.m1').value);
+  const m2=parseMoto(r.querySelector('.m2').value);
+  if(name && (m1.entered || m2.entered)){
+   results.push({name,m1:m1.display||'—',m2:m2.display||'—',m1Sort:m1.sort,m2Sort:m2.sort,pts:m1.points+m2.points});
+  }
+ });
+  results.sort((a,b)=> (b.pts-a.pts) || (a.m2Sort-b.m2Sort) || (a.m1Sort-b.m1Sort) || a.name.localeCompare(b.name));
+  lastCalculatedResults=results;
+ const podium=document.getElementById('podium'); const body=document.getElementById('overallBody'); podium.innerHTML=''; body.innerHTML='';
+ if(results.length===0){podium.innerHTML='<div class="empty">Import riders or enter riders and finishes to generate podium.</div>';return;}
+ const classes=['first','second','third']; const medals=['🥇','🥈','🥉']; const labels=['1st Place','2nd Place','3rd Place'];
+ results.slice(0,3).forEach((r,i)=>{podium.innerHTML += `<div class="podiumCard ${classes[i]}"><div class="place"><span class="medal">${medals[i]}</span>${labels[i]}</div><div class="rName">${escapeHtml(r.name)}</div><div class="scoreLine">${r.m1}-${r.m2} • ${r.pts} pts</div></div>`;});
+ results.forEach((r,i)=>{body.innerHTML += `<tr><td>${i+1}</td><td>${escapeHtml(r.name)}</td><td>${r.m1}</td><td>${r.m2}</td><td>${r.pts}</td></tr>`;});
+}
+function fitCanvasText(ctx,text,maxWidth,startSize,minSize=18){let size=startSize;do{ctx.font=`900 ${size}px Arial`;if(ctx.measureText(text).width<=maxWidth)break;size-=2}while(size>minSize);return size}
+function podiumNameLines(ctx,text,maxWidth){for(let size=28;size>=14;size-=2){ctx.font=`900 ${size}px Arial`;const words=String(text).split(/\s+/),lines=[];let line='';for(const word of words){const test=line?`${line} ${word}`:word;if(ctx.measureText(test).width<=maxWidth)line=test;else{if(line)lines.push(line);line=word}}if(line)lines.push(line);if(lines.length<=2&&lines.every(v=>ctx.measureText(v).width<=maxWidth))return{size,lines}}return{size:12,lines:[String(text)]}}
+function canvasDownload(canvas,name){canvas.toBlob(blob=>{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000)},'image/png')}
+function downloadResultsFlyer(){
+ if(!lastCalculatedResults.length){alert('Calculate or import the round results first.');return}
+ const eventName=document.getElementById('eventName').value.trim()||'Round Results',eventInfo=document.getElementById('eventInfo').value.trim(),className=document.getElementById('className').value.trim();
+ const W=1080,rowH=52,H=Math.max(1350,600+lastCalculatedResults.length*rowH),c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
+ const bg=x.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#16235e');bg.addColorStop(.38,'#080d25');bg.addColorStop(1,'#02040d');x.fillStyle=bg;x.fillRect(0,0,W,H);
+ x.textAlign='center';x.fillStyle='#ffffff';x.font='900 26px Arial';x.fillText('MOTOXSYNDICATE PRESENTS',540,62);
+ fitCanvasText(x,eventName.toUpperCase(),950,58,34);x.fillStyle='#ffffff';x.fillText(eventName.toUpperCase(),540,140);x.fillStyle='#c8d2ff';x.font='800 25px Arial';x.fillText(eventInfo,540,184);x.fillText(className,540,220);
+ const podium=lastCalculatedResults.slice(0,3),cardW=300,gap=24,startX=66;podium.forEach((r,i)=>{const px=startX+i*(cardW+gap),py=258;x.fillStyle=i===0?'#302b22':'#151d40';x.strokeStyle=['#f6c453','#c9d2e3','#cd7f32'][i];x.lineWidth=3;x.beginPath();x.roundRect(px,py,cardW,180,16);x.fill();x.stroke();x.textAlign='left';x.fillStyle=['#f6c453','#c9d2e3','#cd7f32'][i];x.font='900 20px Arial';x.fillText(`${i+1}${i===0?'ST':i===1?'ND':'RD'} PLACE`,px+20,py+38);const nameLayout=podiumNameLines(x,r.name,cardW-40);x.font=`900 ${nameLayout.size}px Arial`;x.fillStyle='#ffffff';const nameY=nameLayout.lines.length===1?py+96:py+82;nameLayout.lines.forEach((line,lineIndex)=>x.fillText(line,px+20,nameY+lineIndex*(nameLayout.size+5)));x.fillStyle='#c8d2ff';x.font='900 23px Arial';x.fillText(`${r.m1}-${r.m2}  •  ${r.pts} PTS`,px+20,py+155)});
+ let y=500;x.textAlign='left';x.fillStyle='#ffffff';x.font='900 24px Arial';x.fillText('OVERALL RESULTS',66,y);y+=38;x.fillStyle='#26347b';x.fillRect(56,y-28,968,42);x.fillStyle='#c8d2ff';x.font='900 17px Arial';[['OVERALL',75],['RIDER',190],['MOTO 1',710],['MOTO 2',820],['POINTS',925]].forEach(([t,px])=>x.fillText(t,px,y));y+=34;
+ lastCalculatedResults.forEach((r,i)=>{if(i%2===0){x.fillStyle='rgba(35,48,109,.42)';x.fillRect(56,y-30,968,rowH)}x.fillStyle=i<3?'#ffcf65':'#ffffff';x.font='900 20px Arial';x.fillText(String(i+1),78,y+4);fitCanvasText(x,r.name,490,22,15);x.fillStyle='#ffffff';x.fillText(r.name,190,y+4);x.fillStyle='#dbe2ff';x.font='900 20px Arial';x.fillText(r.m1,735,y+4);x.fillText(r.m2,850,y+4);x.fillStyle='#ffffff';x.fillText(String(r.pts),955,y+4);y+=rowH});
+ x.textAlign='center';x.fillStyle='#c8d2ff';x.font='900 22px Arial';x.fillText('www.motoxsyndicate.com',540,H-44);canvasDownload(c,`${safeFileName(eventName)}_${safeFileName(className)}_Flyer.png`)
+}
+function escapeHtml(s){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+function norm(s){return String(s||'').toLowerCase().replace(/[^a-z0-9]/g,'');}
+function directText(node,tag){
+ if(!node) return '';
+ const child=[...node.children].find(el=>el.tagName.toLowerCase()===tag.toLowerCase());
+ return child ? child.textContent.trim() : '';
+}
+function readFileText(file){
+ return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(reader.error||new Error('Could not read '+file.name));reader.readAsText(file,'ISO-8859-1');});
+}
+function resultDisplay(entry){
+ const status=directText(entry,'Status').toUpperCase();
+ if(['DNS','DNF','DSQ'].includes(status)) return status;
+ const pos=parseInt(directText(entry,'Pos'),10);
+ return Number.isFinite(pos) && pos>0 ? String(pos) : 'DNS';
+}
+async function importXmlFiles(fileList){
+ const files=[...fileList].filter(f=>f.name.toLowerCase().endsWith('.xml'));
+ const status=document.getElementById('importStatus');
+ if(!files.length){status.style.color='#ffb3bf';status.textContent='Drop or choose at least one XML results file.';return;}
+ status.style.color='var(--muted)';status.textContent=`Reading ${files.length} XML file${files.length===1?'':'s'}...`;
+ try{
+  const motoMaps={Race1:new Map(),Race2:new Map()};
+  const riders=new Map(); const sessionFiles={Race1:0,Race2:0};
+  let detectedClass='',trackName='';
+  for(const file of files){
+   const xmlText=await readFileText(file);
+   const doc=new DOMParser().parseFromString(xmlText,'application/xml');
+   if(doc.querySelector('parsererror')) throw new Error(`${file.name} is not a valid MX Bikes XML file.`);
+   trackName=trackName||doc.querySelector('Track > Name')?.textContent.trim()||'';
+   const entryByNumber=new Map();
+   doc.querySelectorAll('Entries > Entry').forEach(entry=>{
+    const number=directText(entry,'RaceNum'); const name=directText(entry,'Name'); const guid=directText(entry,'GUID'); const category=directText(entry,'Category');
+     if(!number) return;
+    detectedClass=detectedClass||category;
+    const key=guid||`number:${number}`; const rider={key,guid,number,name,label:`#${number} ${name}`.trim()};
+    entryByNumber.set(number,rider); riders.set(key,rider);
+   });
+   for(const motoName of ['Race1','Race2']){
+    const session=doc.querySelector(motoName); if(!session) continue;
+    sessionFiles[motoName]++;
+    session.querySelectorAll('Classification > Entry').forEach(result=>{
+     const number=directText(result,'RaceNum'); const rider=entryByNumber.get(number); if(!rider) return;
+     motoMaps[motoName].set(rider.key,{display:resultDisplay(result),position:parseInt(directText(result,'Pos'),10)||999});
+    });
+   }
+  }
+  if(!sessionFiles.Race1&&!sessionFiles.Race2) throw new Error('No Race1 or Race2 classification was found in the selected files.');
+  const ordered=[...riders.values()].sort((a,b)=>{
+   const a1=motoMaps.Race1.get(a.key)?.position??9999,b1=motoMaps.Race1.get(b.key)?.position??9999;
+   const a2=motoMaps.Race2.get(a.key)?.position??9999,b2=motoMaps.Race2.get(b.key)?.position??9999;
+   return a1-b1||a2-b2||a.name.localeCompare(b.name);
+  });
+  ridersDiv.innerHTML='';
+  ordered.forEach(r=>addRider(r.label,motoMaps.Race1.get(r.key)?.display||'',motoMaps.Race2.get(r.key)?.display||''));
+  currentRoundExport=ordered.map(r=>{
+   const moto1=motoMaps.Race1.get(r.key)?.display||''; const moto2=motoMaps.Race2.get(r.key)?.display||'';
+   return {guid:r.guid||'',number:r.number,name:r.name,moto1,moto2,points:parseMoto(moto1).points+parseMoto(moto2).points};
+  });
+  if(trackName) document.getElementById('eventInfo').value=trackName.replaceAll('_',' ');
+  if(detectedClass){document.getElementById('className').value=`${detectedClass} Overall`;document.getElementById('eventName').value=`${detectedClass} Race Results`;}
+  calculate();
+  const found=[]; if(sessionFiles.Race1) found.push(`Moto 1 (${motoMaps.Race1.size} riders)`); if(sessionFiles.Race2) found.push(`Moto 2 (${motoMaps.Race2.size} riders)`);
+  const duplicateWarning=(sessionFiles.Race1>1||sessionFiles.Race2>1)?' Multiple files for the same moto were merged by rider GUID.':'';
+  status.style.color='var(--green)';status.textContent=`${files.length} XML file${files.length===1?' is':'s are'} loaded. Imported ${found.join(' and ')}. Overall calculated automatically.${duplicateWarning}`;
+  }catch(err){status.style.color='#ffb3bf';status.textContent='XML import failed: '+err.message;}
+}
+function addXmlFiles(fileList){
+ [...fileList].filter(file=>file.name.toLowerCase().endsWith('.xml')).forEach(file=>loadedXmlFiles.set(`${file.name}:${file.size}:${file.lastModified}`,file));
+ document.getElementById('xmlFiles').value='';
+ importXmlFiles([...loadedXmlFiles.values()]);
+}
+function clearXmlImport(){loadedXmlFiles.clear();document.getElementById('xmlFiles').value='';document.getElementById('importStatus').textContent='';clearRiders();}
+function safeFileName(value){return String(value||'round').replace(/[^a-z0-9_-]+/gi,'_').replace(/^_+|_+$/g,'').slice(0,80)||'round';}
+function exportChampionshipRound(){
+ if(!currentRoundExport.length){alert('Import the Moto 1 and Moto 2 XML results first.');return;}
+ const roundName=document.getElementById('eventName').value.trim()||'Round';
+ const eventInfo=document.getElementById('eventInfo').value.trim();
+ const className=document.getElementById('className').value.trim()||'Class';
+ const payload={type:'mxs-round-v1',roundId:`${className}|${roundName}|${eventInfo}`.toLowerCase(),roundName,eventInfo,className,exportedAt:new Date().toISOString(),riders:currentRoundExport};
+ const link=document.createElement('a');link.href=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}));
+ link.download=`${safeFileName(roundName)}_${safeFileName(className)}.mxsround.json`;document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(link.href),1000);
+}
+function formatLapTime(seconds){
+ const total=Number(seconds); if(!Number.isFinite(total)||total<=0) return '—';
+ const minutes=Math.floor(total/60); const secs=(total-minutes*60).toFixed(3).padStart(6,'0');
+ return `${minutes}:${secs}`;
+}
+async function importQualifyingFiles(fileList){
+ const files=[...fileList].filter(file=>file.name.toLowerCase().endsWith('.xml'));
+ const status=document.getElementById('qualImportStatus');
+ if(!files.length){status.style.color='#ffb3bf';status.textContent='Choose at least one qualifying XML file.';return;}
+ status.style.color='var(--muted)';status.textContent=`Reading ${files.length} qualifying XML file${files.length===1?'':'s'}...`;
+ try{
+  const combined=new Map(); let trackName=''; let sessionsFound=0;
+  for(const file of files){
+   const doc=new DOMParser().parseFromString(await readFileText(file),'application/xml');
+   if(doc.querySelector('parsererror')) throw new Error(`${file.name} is not a valid MX Bikes XML file.`);
+   trackName=trackName||doc.querySelector('Track > Name')?.textContent.trim()||'';
+   const entriesByNumber=new Map();
+   doc.querySelectorAll('Entries > Entry').forEach(entry=>{
+    const number=directText(entry,'RaceNum'); if(!number) return;
+    entriesByNumber.set(number,{number,name:directText(entry,'Name'),guid:directText(entry,'GUID')});
+   });
+   const session=doc.querySelector('QualifyPractice')||doc.querySelector('Practice');
+   if(!session) continue; sessionsFound++;
+   session.querySelectorAll('Classification > Entry').forEach(result=>{
+    const number=directText(result,'RaceNum'); const rider=entriesByNumber.get(number); if(!rider) return;
+    const lapTime=Number(directText(result,'LapTime')); if(!Number.isFinite(lapTime)||lapTime<=0) return;
+    const key=rider.guid||`number:${number}`; const current=combined.get(key);
+    if(!current||lapTime<current.lapTime) combined.set(key,{...rider,lapTime});
+   });
+  }
+  if(!sessionsFound) throw new Error('No QualifyPractice or Practice classification was found.');
+  const ordered=[...combined.values()].sort((a,b)=>a.lapTime-b.lapTime||a.name.localeCompare(b.name));
+  const body=document.getElementById('qualBody'); body.innerHTML='';
+  ordered.forEach((r,index)=>{
+   const qualified=index<35; const row=document.createElement('tr');
+   row.innerHTML=`<td>${index+1}</td><td>#${escapeHtml(r.number)}</td><td>${escapeHtml(r.name)}</td><td class="lapTime">${formatLapTime(r.lapTime)}</td><td class="qualStatus ${qualified?'qualified':'dnq'}">${qualified?'QUALIFIED':'DNQ'}</td>`;
+   body.appendChild(row);
+  });
+  if(!ordered.length) body.innerHTML='<tr><td colspan="5" class="empty">No valid qualifying laps were found.</td></tr>';
+  document.getElementById('qualMeta').textContent=`${trackName?trackName.replaceAll('_',' ')+' • ':''}${ordered.length} riders ranked • Top ${Math.min(35,ordered.length)} qualify`;
+  status.style.color='var(--green)';status.textContent=`${files.length} XML file${files.length===1?' is':'s are'} loaded from ${sessionsFound} qualifying session${sessionsFound===1?'':'s'}. ${ordered.length} riders ranked fastest to slowest.`;
+ }catch(err){status.style.color='#ffb3bf';status.textContent='Qualifying import failed: '+err.message;}
+}
+function addQualifyingFiles(fileList){
+ [...fileList].filter(file=>file.name.toLowerCase().endsWith('.xml')).forEach(file=>loadedQualFiles.set(`${file.name}:${file.size}:${file.lastModified}`,file));
+ document.getElementById('qualFiles').value=''; importQualifyingFiles([...loadedQualFiles.values()]);
+}
+function clearQualifying(){
+ loadedQualFiles.clear();document.getElementById('qualFiles').value='';document.getElementById('qualImportStatus').textContent='';
+ document.getElementById('qualMeta').textContent='Upload qualifying XML files to calculate the combined order.';
+ document.getElementById('qualBody').innerHTML='<tr><td colspan="5" class="empty">No qualifying results loaded.</td></tr>';
+}
+function parseCsv(text){
+ const rows=[]; let row=[]; let field=''; let quoted=false;
+ for(let i=0;i<text.length;i++){
+   const c=text[i]; const n=text[i+1];
+   if(quoted){
+     if(c==='"' && n==='"'){field+='"'; i++;}
+     else if(c==='"'){quoted=false;}
+     else{field+=c;}
+   }else{
+     if(c==='"'){quoted=true;}
+     else if(c===','){row.push(field); field='';}
+     else if(c==='\n'){row.push(field); rows.push(row); row=[]; field='';}
+     else if(c==='\r'){}
+     else{field+=c;}
+   }
+ }
+ row.push(field); rows.push(row);
+ return rows.filter(r=>r.some(v=>String(v).trim()!==''));
+}
+function findHeader(headers, candidates){
+ const normalized=headers.map(norm);
+ for(const cand of candidates){
+   const nc=norm(cand);
+   const idx=normalized.findIndex(h=>h===nc || h.includes(nc) || nc.includes(h));
+   if(idx>=0) return idx;
+ }
+ return -1;
+}
+function importCsvFile(){
+ const file=document.getElementById('csvFile').files[0];
+ const status=document.getElementById('importStatus');
+ if(!file){status.style.color='#ffb3bf'; status.textContent='Choose a CSV file first.'; return;}
+ const reader=new FileReader();
+ reader.onload=()=>{
+   try{
+     const rows=parseCsv(reader.result);
+     if(rows.length<2) throw new Error('No registrations found.');
+     const headers=rows[0];
+     const riderIdx=findHeader(headers,['MX Bikes Name','Mx bikes Name','MXB Name','In Game Name','Rider Name','Name']);
+     const discordIdx=findHeader(headers,['Discord Name','Discord Username','Discord']);
+     const numberIdx=findHeader(headers,['Bike Number','Race Number','Number']);
+     if(riderIdx<0) throw new Error('Could not find a Rider Name or MX Bikes Name column.');
+     const seen=new Set(); const imported=[];
+     rows.slice(1).forEach(r=>{
+       let name=(r[riderIdx]||'').trim();
+       const number = numberIdx>=0 ? (r[numberIdx]||'').trim() : '';
+       const discord = discordIdx>=0 ? (r[discordIdx]||'').trim() : '';
+       if(!name && discord) name=discord;
+       if(!name) return;
+       // If a number exists, keep it in the rider label so results look official.
+       const label = number ? `#${number} ${name}` : name;
+       const key=label.toLowerCase();
+       if(!seen.has(key)){seen.add(key); imported.push(label);}
+     });
+     if(imported.length===0) throw new Error('No rider names found in the CSV.');
+     ridersDiv.innerHTML='';
+     imported.forEach(name=>addRider(name,'',''));
+     status.style.color='var(--green)';
+     status.textContent=`Imported ${imported.length} registered rider${imported.length===1?'':'s'}. Enter Moto 1 and Moto 2 finishes, then calculate.`;
+     calculate();
+   }catch(err){status.style.color='#ffb3bf'; status.textContent='Import failed: '+err.message;}
+ };
+ reader.readAsText(file);
+}
+['eventName','eventInfo','className'].forEach(id=>document.getElementById(id).addEventListener('input',calculate));
+const xmlInput=document.getElementById('xmlFiles');
+const xmlDrop=document.getElementById('xmlDrop');
+xmlInput.addEventListener('change',()=>addXmlFiles(xmlInput.files));
+['dragenter','dragover'].forEach(type=>xmlDrop.addEventListener(type,e=>{e.preventDefault();e.stopPropagation();xmlDrop.classList.add('dragover');}));
+['dragleave','drop'].forEach(type=>xmlDrop.addEventListener(type,e=>{e.preventDefault();e.stopPropagation();xmlDrop.classList.remove('dragover');}));
+xmlDrop.addEventListener('drop',e=>addXmlFiles(e.dataTransfer.files));
+const qualInput=document.getElementById('qualFiles');
+const qualDrop=document.getElementById('qualDrop');
+qualInput.addEventListener('change',()=>addQualifyingFiles(qualInput.files));
+['dragenter','dragover'].forEach(type=>qualDrop.addEventListener(type,e=>{e.preventDefault();e.stopPropagation();qualDrop.classList.add('dragover');}));
+['dragleave','drop'].forEach(type=>qualDrop.addEventListener(type,e=>{e.preventDefault();e.stopPropagation();qualDrop.classList.remove('dragover');}));
+qualDrop.addEventListener('drop',e=>addQualifyingFiles(e.dataTransfer.files));
+addRider(); addRider(); addRider(); calculate();
+</script>
+<script src="/static/mxb-cloud.js?v=20260813a"></script>
+</body></html>

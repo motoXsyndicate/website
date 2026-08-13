@@ -1,0 +1,77 @@
+MXS MX BIKES RESULTS PORTAL — ONE-TIME SETUP
+================================================
+
+The protected results tool, approved-host permissions, shared round archive,
+cloud championship manager, and public standings page are included in the site.
+
+1. APPLY THE DATABASE MIGRATION
+-------------------------------
+In Cloudflare, open Storage & Databases > D1 > mxs-paintball > Console.
+Copy and run the complete contents of:
+
+  /mxb/d1-results-migration.sql
+
+The migration only adds new mxb_* tables and indexes. It does not alter or
+remove paintball players, events, brackets, or results.
+
+2. ADD THE MXB DISCORD REDIRECT
+-------------------------------
+Open the same Discord application already used by the paintball portal.
+Under OAuth2 > Redirects, add this exact production URL:
+
+  https://www.motoxsyndicate.com/api/mxb/auth/callback
+
+Keep the existing paintball callback. Both redirects must remain enabled.
+
+3. DEPLOY THE WEBSITE
+---------------------
+Deploy this GitHub repository through the existing Cloudflare Pages project.
+The MXB portal reuses PAINTBALL_DB, DISCORD_CLIENT_ID, and
+DISCORD_CLIENT_SECRET, so no new binding or secret is required.
+
+4. APPROVE MXB HOSTS
+--------------------
+1. Have the host sign into the MXB tool once with Discord:
+   https://www.motoxsyndicate.com/mxb/admin/
+2. They will initially see that approval is required.
+3. Sign in with the MXS admin account and open the same page.
+4. Use MXB Host Permissions at the bottom to approve their Discord account.
+5. The host can then use the round tool and championship manager.
+
+PRIVATE HOST TOOLS
+------------------
+Round calculator:
+  https://www.motoxsyndicate.com/mxb/admin/
+
+Championship manager:
+  https://www.motoxsyndicate.com/mxb/championship/
+
+These pages are checked on the server before their HTML or JavaScript is sent.
+Only MXS admins and approved MXB hosts can load them.
+
+PUBLIC RESULTS
+--------------
+Live standings and published rounds:
+  https://www.motoxsyndicate.com/mxb/results/
+
+The existing flyer archive now links to this live standings page.
+
+HOST WORKFLOW
+-------------
+1. Open the protected Round Results Tool.
+2. Import the Moto 1 and Moto 2 XML files.
+3. Verify the calculated results.
+4. Select Publish Round to Website.
+5. Open Championship Manager.
+6. Load/create the correct class and select Import Website Rounds.
+7. Championship totals save automatically to the website.
+
+SECURITY NOTES
+--------------
+- Discord credentials and authorization checks stay server-side.
+- A host can manage only records they created; MXS admins can manage all data.
+- Revoking a host blocks future access without deleting published results.
+- Public visitors receive only records marked as published.
+- No downloadable program can be made impossible to copy. Server-side access
+  control keeps the official service, stored data, and publishing authority
+  under MXS control.
