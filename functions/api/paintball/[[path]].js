@@ -35,6 +35,12 @@ function requireBindings(env) {
   }
 }
 
+function requireSameOrigin(request) {
+  if (["GET","HEAD","OPTIONS"].includes(request.method)) return;
+  const origin = request.headers.get("Origin");
+  if (origin && origin !== new URL(request.url).origin) throw Object.assign(new Error("Invalid request origin."), {status:403});
+}
+
 async function currentUser(request, env) {
   const token = cookieValue(request, SESSION_COOKIE);
   if (!token) return null;
@@ -503,6 +509,7 @@ export async function onRequest(context) {
   const {request,env} = context;
   try {
     requireBindings(env);
+    requireSameOrigin(request);
     const route = routeFor(request);
     if (route === "auth/login" && request.method === "GET") return await discordLogin(request,env);
     if (route === "auth/callback" && request.method === "GET") return await discordCallback(request,env);

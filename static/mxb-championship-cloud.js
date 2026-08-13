@@ -31,8 +31,8 @@
     const selected = currentSeries();
     if (!selected) return cloudMessage("Load or create a championship first.",true);
     try {
-      const {rounds} = await api("public/rounds");
-      const matches = rounds.filter((round) => norm(round.className) === norm(selected.className));
+      const {rounds} = await api("admin/rounds");
+      const matches = rounds.filter((round) => norm(round.class_name) === norm(selected.className));
       matches.forEach((round) => { selected.rounds[round.payload.roundId] = round.payload; });
       saveDb();
       cloudMessage(`Imported ${matches.length} published ${selected.className} round${matches.length === 1 ? "" : "s"}.`);

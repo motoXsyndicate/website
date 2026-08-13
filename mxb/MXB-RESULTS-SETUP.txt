@@ -49,21 +49,15 @@ Championship manager:
 These pages are checked on the server before their HTML or JavaScript is sent.
 Only MXS admins and approved MXB hosts can load them.
 
-PUBLIC RESULTS
---------------
-Live standings and published rounds:
-  https://www.motoxsyndicate.com/mxb/results/
-
-The existing flyer archive now links to this live standings page.
-
 HOST WORKFLOW
 -------------
 1. Open the protected Round Results Tool.
 2. Import the Moto 1 and Moto 2 XML files.
 3. Verify the calculated results.
 4. Select Publish Round to Website.
-5. Open Championship Manager.
-6. Load/create the correct class and select Import Website Rounds.
+5. Open Championship Manager while signed in as an approved host.
+6. Load/create the correct class and select Import Website Rounds. Hosts see
+   their own rounds; MXS admins can import any published host round.
 7. Championship totals save automatically to the website.
 
 SECURITY NOTES
