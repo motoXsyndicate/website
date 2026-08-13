@@ -476,7 +476,7 @@ async function adminBracket(request, env) {
 async function adminHosts(request, env) {
   const admin = await requireAdmin(request, env);
   if (request.method === "GET") {
-    const result = await env.PAINTBALL_DB.prepare(`SELECT u.id,u.discord_name,p.in_game_name,CASE WHEN h.user_id IS NULL THEN 0 ELSE 1 END AS is_host,CASE WHEN a.user_id IS NULL THEN 0 ELSE 1 END AS is_admin,COALESCE(b.is_premium,0) AS is_premium FROM pb_users u JOIN pb_profiles p ON p.user_id=u.id LEFT JOIN pb_hosts h ON h.user_id=u.id LEFT JOIN pb_admins a ON a.user_id=u.id LEFT JOIN pb_host_branding b ON b.user_id=u.id ORDER BY lower(p.in_game_name)`).all();
+    const result = await env.PAINTBALL_DB.prepare(`SELECT u.id,u.discord_name,COALESCE(p.in_game_name,'') AS in_game_name,CASE WHEN h.user_id IS NULL THEN 0 ELSE 1 END AS is_host,CASE WHEN a.user_id IS NULL THEN 0 ELSE 1 END AS is_admin,COALESCE(b.is_premium,0) AS is_premium FROM pb_users u LEFT JOIN pb_profiles p ON p.user_id=u.id LEFT JOIN pb_hosts h ON h.user_id=u.id LEFT JOIN pb_admins a ON a.user_id=u.id LEFT JOIN pb_host_branding b ON b.user_id=u.id ORDER BY lower(u.discord_name)`).all();
     return json({players:result.results});
   }
   const data = await body(request);
