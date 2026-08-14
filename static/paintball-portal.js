@@ -30,7 +30,7 @@
     return payload;
   }
 
-  function signIn() { window.location.href = "/api/paintball/auth/login"; }
+  function signIn() { window.location.href = `/api/paintball/auth/login?returnTo=${encodeURIComponent(location.pathname+location.search)}`; }
   async function signOut() { await api("auth/logout", {method:"POST"}); window.location.href = "/paintball/register/"; }
 
   function renderIdentity() {

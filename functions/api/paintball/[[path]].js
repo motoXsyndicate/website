@@ -1,5 +1,6 @@
 const SESSION_COOKIE = "mxs_pb_session";
 const OAUTH_COOKIE = "mxs_pb_oauth_state";
+const RETURN_COOKIE = "mxs_pb_return_to";
 const JSON_HEADERS = {"Content-Type":"application/json","Cache-Control":"no-store"};
 
 const json = (data, status = 200) => new Response(JSON.stringify(data), {status, headers:JSON_HEADERS});
@@ -96,10 +97,15 @@ async function body(request) {
 async function discordLogin(request, env) {
   const url = new URL(request.url);
   const state = randomToken(24);
+  const requestedReturn = url.searchParams.get("returnTo") || "/paintball/register/";
+  const returnTo = requestedReturn.startsWith("/paintball/") && !requestedReturn.startsWith("//") ? requestedReturn.slice(0,500) : "/paintball/register/";
   const callback = `${url.origin}/api/paintball/auth/callback`;
   const authorize = new URL("https://discord.com/oauth2/authorize");
   authorize.search = new URLSearchParams({client_id:env.DISCORD_CLIENT_ID,response_type:"code",redirect_uri:callback,scope:"identify",state}).toString();
-  return new Response(null, {status:302, headers:{Location:authorize.toString(),"Set-Cookie":cookie(OAUTH_COOKIE,state,600),"Cache-Control":"no-store"}});
+  const headers = new Headers({Location:authorize.toString(),"Cache-Control":"no-store"});
+  headers.append("Set-Cookie",cookie(OAUTH_COOKIE,state,600));
+  headers.append("Set-Cookie",cookie(RETURN_COOKIE,returnTo,600));
+  return new Response(null, {status:302, headers});
 }
 
 async function discordCallback(request, env) {
@@ -135,9 +141,12 @@ async function discordCallback(request, env) {
     env.PAINTBALL_DB.prepare("DELETE FROM pb_sessions WHERE expires_at <= ?").bind(now),
     env.PAINTBALL_DB.prepare("INSERT INTO pb_sessions (token_hash, user_id, expires_at, created_at) VALUES (?, ?, ?, ?)").bind(sessionHash,userId,expires,now)
   ]);
-  const headers = new Headers({Location:`${url.origin}/paintball/register/`,"Cache-Control":"no-store"});
+  const returnTo = cookieValue(request,RETURN_COOKIE) || "/paintball/register/";
+  const safeReturn = returnTo.startsWith("/paintball/") && !returnTo.startsWith("//") ? returnTo : "/paintball/register/";
+  const headers = new Headers({Location:`${url.origin}${safeReturn}`,"Cache-Control":"no-store"});
   headers.append("Set-Cookie", cookie(SESSION_COOKIE,sessionToken,2592000));
   headers.append("Set-Cookie", cookie(OAUTH_COOKIE,"",0));
+  headers.append("Set-Cookie", cookie(RETURN_COOKIE,"",0));
   return new Response(null, {status:302, headers});
 }
 
@@ -209,6 +218,19 @@ async function playerEvents(request, env) {
       AND e.starts_at >= ?
     ORDER BY e.starts_at
   `).bind(user.id,user.id,user.id,cutoff).all();
+  return json({events:result.results});
+}
+
+async function publicEvents(env) {
+  const cutoff = new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString();
+  const result = await env.PAINTBALL_DB.prepare(`
+    SELECT e.id,e.title,e.starts_at,e.check_in_opens_at,e.check_in_closes_at,e.team_size,e.match_format,e.estimated_duration,e.status,
+      (SELECT COUNT(*) FROM pb_event_registrations r WHERE r.event_id=e.id) AS registration_count,
+      (SELECT COUNT(*) FROM pb_check_ins c WHERE c.event_id=e.id) AS confirmation_count
+    FROM pb_events e
+    WHERE e.status IN ('check_in_open','check_in_closed','teams_generated','teams_published') AND e.starts_at >= ?
+    ORDER BY e.starts_at
+  `).bind(cutoff).all();
   return json({events:result.results});
 }
 
@@ -518,6 +540,7 @@ export async function onRequest(context) {
     if (route === "profile" && request.method === "POST") return await saveProfile(request,env);
     if (route === "event/current" && request.method === "GET") return await currentEvent(request,env);
     if (route === "events" && request.method === "GET") return await playerEvents(request,env);
+    if (route === "public/events" && request.method === "GET") return await publicEvents(env);
     if (route === "event/register" && request.method === "POST") return await registerForEvent(request,env);
     if (route === "event/players" && request.method === "GET") return await eventPlayers(request,env);
     if (route === "check-in" && request.method === "POST") return await checkIn(request,env);
