@@ -49,7 +49,8 @@
     return data;
   }
   if (seriesContainer) load("series").then((data) => {
-    seriesContainer.innerHTML=data.series?.length ? data.series.map(renderSeries).join("") : '<div class="results-empty"><h2>No championship standings posted yet</h2><p>Approved hosts can publish updated overall standings from the Championship Manager.</p></div>';
+    if (data.series?.length) seriesContainer.innerHTML=data.series.map(renderSeries).join("");
+    else seriesContainer.hidden=true;
   }).catch((caught) => { seriesContainer.innerHTML=`<div class="results-empty"><h2>Standings temporarily unavailable</h2><p>${escapeHtml(caught.message)}</p></div>`; });
   if (roundContainer) load("rounds").then((data) => {
     roundContainer.innerHTML=data.rounds?.length ? data.rounds.map(renderRound).join("") : '<div class="results-empty"><h2>No one-time event results posted yet</h2><p>Series rounds stay private; this area is only for standalone events.</p></div>';
