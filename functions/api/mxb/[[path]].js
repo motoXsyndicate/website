@@ -169,7 +169,39 @@ async function rounds(request, env) {
 
 async function publicRounds(env) {
   const result = await env.PAINTBALL_DB.prepare("SELECT id,round_name,event_info,class_name,payload_json,updated_at FROM mxb_rounds WHERE published=1 ORDER BY updated_at DESC").all();
-  return json({rounds:result.results.map((row) => ({id:row.id,roundName:row.round_name,eventInfo:row.event_info,className:row.class_name,updatedAt:row.updated_at,payload:JSON.parse(row.payload_json)}))});
+  const rounds = await Promise.all(result.results.map(async (row) => {
+    const flyerKey = `round-flyers/${await sha256(row.id)}.png`;
+    const hasFlyer = env.MXB_RESULTS_BUCKET ? !!(await env.MXB_RESULTS_BUCKET.head(flyerKey)) : false;
+    return {id:row.id,roundName:row.round_name,eventInfo:row.event_info,className:row.class_name,updatedAt:row.updated_at,payload:JSON.parse(row.payload_json),flyerUrl:hasFlyer ? `/api/mxb/public/flyer?id=${encodeURIComponent(row.id)}` : null};
+  }));
+  return json({rounds});
+}
+
+async function uploadFlyer(request, env) {
+  if (!env.MXB_RESULTS_BUCKET) return error("Flyer storage is not connected yet.",503);
+  const organizer = await requireOrganizer(request,env);
+  const form = await request.formData();
+  const roundId = cleanText(form.get("roundId"),180);
+  const flyer = form.get("flyer");
+  if (!roundId || !flyer || typeof flyer.arrayBuffer !== "function") return error("Round ID and PNG flyer are required.");
+  if (flyer.type !== "image/png") return error("The flyer must be a PNG image.");
+  if (flyer.size < 1000 || flyer.size > 8 * 1024 * 1024) return error("The flyer must be between 1 KB and 8 MB.");
+  const round = await env.PAINTBALL_DB.prepare("SELECT created_by FROM mxb_rounds WHERE id=?").bind(roundId).first();
+  if (!round) return error("Publish the round before uploading its flyer.",404);
+  if (!organizer.isAdmin && round.created_by !== organizer.id) return error("You can only upload flyers for rounds you published.",403);
+  const key = `round-flyers/${await sha256(roundId)}.png`;
+  await env.MXB_RESULTS_BUCKET.put(key,await flyer.arrayBuffer(),{httpMetadata:{contentType:"image/png"},customMetadata:{roundId,uploadedBy:organizer.id}});
+  return json({ok:true,flyerUrl:`/api/mxb/public/flyer?id=${encodeURIComponent(roundId)}`});
+}
+
+async function publicFlyer(request, env) {
+  if (!env.MXB_RESULTS_BUCKET) return new Response("Not found",{status:404});
+  const roundId = cleanText(new URL(request.url).searchParams.get("id"),180);
+  const round = roundId ? await env.PAINTBALL_DB.prepare("SELECT 1 FROM mxb_rounds WHERE id=? AND published=1").bind(roundId).first() : null;
+  if (!round) return new Response("Not found",{status:404});
+  const object = await env.MXB_RESULTS_BUCKET.get(`round-flyers/${await sha256(roundId)}.png`);
+  if (!object) return new Response("Not found",{status:404});
+  return new Response(object.body,{headers:{"Content-Type":"image/png","Cache-Control":"public, max-age=300","ETag":object.httpEtag}});
 }
 
 async function series(request, env) {
@@ -233,7 +265,9 @@ export async function onRequest({request,env}) {
     if (route === "admin/rounds" && ["GET","POST"].includes(request.method)) return await rounds(request,env);
     if (route === "admin/series" && ["GET","POST"].includes(request.method)) return await series(request,env);
     if (route === "admin/hosts" && ["GET","POST"].includes(request.method)) return await hosts(request,env);
+    if (route === "admin/flyer" && request.method === "POST") return await uploadFlyer(request,env);
     if (route === "public/rounds" && request.method === "GET") return await publicRounds(env);
+    if (route === "public/flyer" && request.method === "GET") return await publicFlyer(request,env);
     return error("Not found.",404);
   } catch (caught) {
     return error(caught.message || "Unexpected server error.",caught.status || 500);

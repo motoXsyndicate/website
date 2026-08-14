@@ -23,7 +23,7 @@
     <button class="btn" onclick="window.print()">Print / Save as PDF</button>
     <button class="btn" onclick="downloadResultsFlyer()">Download Results Flyer PNG</button>
     <button class="btn orange" onclick="location.href='/mxb/championship/'">Open Championship Manager</button>
-    <button class="btn orange" onclick="publishRoundToWebsite()">Publish Round to Results Page</button>
+    <button class="btn orange" onclick="publishRoundToWebsite()">Publish Round &amp; Flyer</button>
     <button class="btn" onclick="mxbSignOut()">Sign out</button>
     <div id="mxb-cloud-status" class="status">Checking MXB host access…</div>
   </div>
@@ -143,7 +143,7 @@ function calculate(){
 }
 function fitCanvasText(ctx,text,maxWidth,startSize,minSize=18){let size=startSize;do{ctx.font=`900 ${size}px Arial`;if(ctx.measureText(text).width<=maxWidth)break;size-=2}while(size>minSize);return size}
 function podiumNameLines(ctx,text,maxWidth){for(let size=28;size>=14;size-=2){ctx.font=`900 ${size}px Arial`;const words=String(text).split(/\s+/),lines=[];let line='';for(const word of words){const test=line?`${line} ${word}`:word;if(ctx.measureText(test).width<=maxWidth)line=test;else{if(line)lines.push(line);line=word}}if(line)lines.push(line);if(lines.length<=2&&lines.every(v=>ctx.measureText(v).width<=maxWidth))return{size,lines}}return{size:12,lines:[String(text)]}}
-function canvasDownload(canvas,name){canvas.toBlob(blob=>{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000)},'image/png')}
+function canvasDownload(canvas,name){canvas.toBlob(async blob=>{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);if(window.pendingRoundFlyerUpload){const roundId=window.pendingRoundFlyerUpload;window.pendingRoundFlyerUpload='';await window.uploadRoundFlyer?.(blob,roundId)}},'image/png')}
 function downloadResultsFlyer(){
  if(!lastCalculatedResults.length){alert('Calculate or import the round results first.');return}
  const eventName=document.getElementById('eventName').value.trim()||'Round Results',eventInfo=document.getElementById('eventInfo').value.trim(),className=document.getElementById('className').value.trim();

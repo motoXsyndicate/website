@@ -23,10 +23,23 @@
   window.publishRoundToWebsite = async function () {
     try {
       const payload = roundPayload();
-      setStatus("Publishing round to the public Results page…");
+      setStatus("Publishing round and generating its flyer…");
       await api("admin/rounds",{method:"POST",body:JSON.stringify({payload,published:true})});
-      setStatus(`${payload.roundName} — ${payload.className} is now posted on the public Results page and saved for the Championship Manager.`);
+      window.pendingRoundFlyerUpload = payload.roundId;
+      downloadResultsFlyer();
     } catch (caught) { setStatus(caught.message,true); }
+  };
+  window.uploadRoundFlyer = async function (blob, roundId) {
+    try {
+      setStatus("Uploading flyer and finishing the Results page card…");
+      const form = new FormData();
+      form.append("roundId",roundId);
+      form.append("flyer",blob,"results-flyer.png");
+      const response = await fetch("/api/mxb/admin/flyer",{method:"POST",credentials:"same-origin",body:form});
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.error || "The flyer could not be uploaded.");
+      setStatus("Round and flyer published successfully. The image card is now on the public Results page.");
+    } catch (caught) { setStatus(`The round was saved, but the flyer upload failed: ${caught.message}`,true); }
   };
   window.mxbSignOut = async function () {
     await api("auth/logout",{method:"POST"}).catch(() => null);

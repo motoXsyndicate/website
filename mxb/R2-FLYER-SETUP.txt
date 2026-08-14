@@ -1,0 +1,26 @@
+MXS AUTOMATIC RESULTS FLYERS — ONE-TIME CLOUDFLARE SETUP
+========================================================
+
+1. In Cloudflare, open R2 Object Storage and create a bucket named:
+   mxs-results-flyers
+
+2. Open Workers & Pages > the MotoXsyndicate Pages project > Settings >
+   Bindings.
+
+3. Add an R2 bucket binding with this exact variable name:
+   MXB_RESULTS_BUCKET
+
+4. Select the mxs-results-flyers bucket and save.
+
+5. Add the same binding to Preview only if preview deployments need flyer
+   uploads. Production is sufficient for the live website.
+
+6. Redeploy the latest website version.
+
+After setup, an approved host uses one button: Publish Round & Flyer.
+The site saves the round, generates and downloads the PNG, uploads it to R2,
+and places the flyer image card on the public MXB Results page automatically.
+
+The upload endpoint accepts PNG files only, limits them to 8 MB, verifies the
+signed-in host owns the round, and keeps the R2 bucket private. Public images
+are served only for published round IDs through the website API.
