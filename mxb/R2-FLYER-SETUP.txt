@@ -17,10 +17,11 @@ MXS AUTOMATIC RESULTS FLYERS — ONE-TIME CLOUDFLARE SETUP
 
 6. Redeploy the latest website version.
 
-After setup, an approved host uses one button: Publish Round & Flyer.
-The site saves the round, generates and downloads the PNG, uploads it to R2,
-and places the flyer image card on the public MXB Results page automatically.
+For a one-time event, an approved host uses Publish One-Time Event & Flyer.
+For a championship, the host saves each round privately, imports it into the
+Championship Manager, then uses Publish Updated Standings & Flyer. Only the
+new overall standings appear publicly; the individual series round does not.
 
 The upload endpoint accepts PNG files only, limits them to 8 MB, verifies the
 signed-in host owns the round, and keeps the R2 bucket private. Public images
-are served only for published round IDs through the website API.
+are served only for published round or championship IDs through the website API.

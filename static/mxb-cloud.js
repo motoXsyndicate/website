@@ -29,6 +29,14 @@
       downloadResultsFlyer();
     } catch (caught) { setStatus(caught.message,true); }
   };
+  window.saveChampionshipRound = async function () {
+    try {
+      const payload = roundPayload();
+      setStatus("Saving championship round privately…");
+      await api("admin/rounds",{method:"POST",body:JSON.stringify({payload,published:false})});
+      setStatus("Championship round saved. It is private and ready to import in Championship Manager.");
+    } catch (caught) { setStatus(caught.message,true); }
+  };
   window.uploadRoundFlyer = async function (blob, roundId) {
     try {
       setStatus("Uploading flyer and finishing the Results page card…");
@@ -66,7 +74,7 @@
       const account = await api("me");
       if (!account.user) return location.replace("/api/mxb/auth/login");
       if (!account.isAdmin && !account.isHost) throw new Error("Your Discord account has not been approved as an MXB host.");
-      setStatus(`Signed in as ${account.user.discord_name}. Completed rounds can be published directly to the website.`);
+      setStatus(`Signed in as ${account.user.discord_name}. Save series rounds privately or publish one-time events.`);
       await addHostManager(account);
     } catch (caught) { setStatus(caught.message,true); }
   })();

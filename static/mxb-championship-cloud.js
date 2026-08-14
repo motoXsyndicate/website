@@ -18,10 +18,34 @@
     cloudMessage("Saving championship…");
     saveTimer = setTimeout(async () => {
       try {
-        await api("admin/series",{method:"POST",body:JSON.stringify({id:selectedId,data:database.series[selectedId],published:true})});
-        cloudMessage("Championship saved to the website.");
+        await api("admin/series",{method:"POST",body:JSON.stringify({id:selectedId,data:database.series[selectedId],published:false})});
+        cloudMessage("Championship draft saved privately.");
       } catch (caught) { cloudMessage(caught.message,true); }
     },500);
+  };
+  window.publishChampionshipStandings = async function () {
+    const selected = currentSeries();
+    if (!selected || !currentId) return cloudMessage("Load or create a championship first.",true);
+    if (!aggregate(selected).length) return cloudMessage("Import standings or completed rounds first.",true);
+    clearTimeout(saveTimer);
+    try {
+      cloudMessage("Publishing the updated overall standings…");
+      await api("admin/series",{method:"POST",body:JSON.stringify({id:currentId,data:selected,published:true})});
+      window.pendingSeriesFlyerUpload = currentId;
+      downloadChampionshipFlyer();
+    } catch (caught) { cloudMessage(caught.message,true); }
+  };
+  window.uploadSeriesFlyer = async function (blob, seriesId) {
+    try {
+      cloudMessage("Uploading the standings flyer…");
+      const form = new FormData();
+      form.append("seriesId",seriesId);
+      form.append("flyer",blob,"championship-standings.png");
+      const response = await fetch("/api/mxb/admin/series-flyer",{method:"POST",credentials:"same-origin",body:form});
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.error || "The standings flyer could not be uploaded.");
+      cloudMessage("Updated overall standings and flyer are now live on the Results page.");
+    } catch (caught) { cloudMessage(`The standings were published, but the flyer upload failed: ${caught.message}`,true); }
   };
   window.mxbSignOut = async function () {
     await api("auth/logout",{method:"POST"}).catch(() => null);
@@ -35,7 +59,7 @@
       const matches = rounds.filter((round) => norm(round.class_name) === norm(selected.className));
       matches.forEach((round) => { selected.rounds[round.payload.roundId] = round.payload; });
       saveDb();
-      cloudMessage(`Imported ${matches.length} published ${selected.className} round${matches.length === 1 ? "" : "s"}.`);
+      cloudMessage(`Imported ${matches.length} saved ${selected.className} round${matches.length === 1 ? "" : "s"}.`);
     } catch (caught) { cloudMessage(caught.message,true); }
   };
   (async () => {

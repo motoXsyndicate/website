@@ -237,7 +237,39 @@ async function series(request, env) {
 
 async function publicSeries(env) {
   const result = await env.PAINTBALL_DB.prepare("SELECT id,series_name,class_name,data_json,updated_at FROM mxb_series WHERE published=1 ORDER BY updated_at DESC").all();
-  return json({series:result.results.map((row) => ({id:row.id,name:row.series_name,className:row.class_name,updatedAt:row.updated_at,data:JSON.parse(row.data_json)}))});
+  const published = await Promise.all(result.results.map(async (row) => {
+    const flyerKey = `series-flyers/${await sha256(row.id)}.png`;
+    const hasFlyer = env.MXB_RESULTS_BUCKET ? !!(await env.MXB_RESULTS_BUCKET.head(flyerKey)) : false;
+    return {id:row.id,name:row.series_name,className:row.class_name,updatedAt:row.updated_at,data:JSON.parse(row.data_json),flyerUrl:hasFlyer ? `/api/mxb/public/series-flyer?id=${encodeURIComponent(row.id)}` : null};
+  }));
+  return json({series:published});
+}
+
+async function uploadSeriesFlyer(request, env) {
+  if (!env.MXB_RESULTS_BUCKET) return error("Flyer storage is not connected yet.",503);
+  const organizer = await requireOrganizer(request,env);
+  const form = await request.formData();
+  const seriesId = cleanText(form.get("seriesId"),180);
+  const flyer = form.get("flyer");
+  if (!seriesId || !flyer || typeof flyer.arrayBuffer !== "function") return error("Series ID and PNG flyer are required.");
+  if (flyer.type !== "image/png") return error("The flyer must be a PNG image.");
+  if (flyer.size < 1000 || flyer.size > 8 * 1024 * 1024) return error("The flyer must be between 1 KB and 8 MB.");
+  const championship = await env.PAINTBALL_DB.prepare("SELECT created_by FROM mxb_series WHERE id=?").bind(seriesId).first();
+  if (!championship) return error("Publish the championship before uploading its flyer.",404);
+  if (!organizer.isAdmin && championship.created_by !== organizer.id) return error("You can only upload flyers for championships you created.",403);
+  const key = `series-flyers/${await sha256(seriesId)}.png`;
+  await env.MXB_RESULTS_BUCKET.put(key,await flyer.arrayBuffer(),{httpMetadata:{contentType:"image/png"},customMetadata:{seriesId,uploadedBy:organizer.id}});
+  return json({ok:true,flyerUrl:`/api/mxb/public/series-flyer?id=${encodeURIComponent(seriesId)}`});
+}
+
+async function publicSeriesFlyer(request, env) {
+  if (!env.MXB_RESULTS_BUCKET) return new Response("Not found",{status:404});
+  const seriesId = cleanText(new URL(request.url).searchParams.get("id"),180);
+  const championship = seriesId ? await env.PAINTBALL_DB.prepare("SELECT 1 FROM mxb_series WHERE id=? AND published=1").bind(seriesId).first() : null;
+  if (!championship) return new Response("Not found",{status:404});
+  const object = await env.MXB_RESULTS_BUCKET.get(`series-flyers/${await sha256(seriesId)}.png`);
+  if (!object) return new Response("Not found",{status:404});
+  return new Response(object.body,{headers:{"Content-Type":"image/png","Cache-Control":"public, max-age=300","ETag":object.httpEtag}});
 }
 
 async function hosts(request, env) {
@@ -266,8 +298,11 @@ export async function onRequest({request,env}) {
     if (route === "admin/series" && ["GET","POST"].includes(request.method)) return await series(request,env);
     if (route === "admin/hosts" && ["GET","POST"].includes(request.method)) return await hosts(request,env);
     if (route === "admin/flyer" && request.method === "POST") return await uploadFlyer(request,env);
+    if (route === "admin/series-flyer" && request.method === "POST") return await uploadSeriesFlyer(request,env);
     if (route === "public/rounds" && request.method === "GET") return await publicRounds(env);
     if (route === "public/flyer" && request.method === "GET") return await publicFlyer(request,env);
+    if (route === "public/series" && request.method === "GET") return await publicSeries(env);
+    if (route === "public/series-flyer" && request.method === "GET") return await publicSeriesFlyer(request,env);
     return error("Not found.",404);
   } catch (caught) {
     return error(caught.message || "Unexpected server error.",caught.status || 500);
