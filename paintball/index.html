@@ -6,7 +6,7 @@
     <meta name="description" content="Browse MXS Paintball pickup tournaments, register for an event, confirm attendance before play, and receive a generated 4v4 or 5v5 team.">
     <title>MXS Paintball Pickup Tournament Nights</title>
     <link rel="canonical" href="https://www.motoxsyndicate.com/paintball/">
-    <link rel="stylesheet" href="/static/style.css?v=20260811-mxb">
+    <link rel="stylesheet" href="/static/style.css?v=20260813-pb">
     <meta property="og:type" content="website">
     <meta property="og:title" content="MXS Paintball | Pickup Tournament Nights">
     <meta property="og:description" content="Browse posted events, register for the nights you want, confirm before play, and receive a generated 4v4 or 5v5 team.">
@@ -20,33 +20,27 @@
     <div class="nav-links"><a href="/">Home</a><a href="/live/">MXS Live</a><a href="/mxb/">MXB</a><a class="active-nav" href="/paintball/">Paintball</a><a href="/about/">About</a><a href="/contact/">Contact</a><a href="https://www.paypal.com/donate/?hosted_button_id=8RM4XA39HYTQS" target="_blank" rel="noopener">Support</a><a class="nav-discord" href="https://discord.gg/2XXBNqXJwD" target="_blank" rel="noopener">Discord</a></div>
 </nav></header>
 <main>
-    <section id="events" class="season-registration season-registration-featured">
-        <div class="season-poster"><div class="format-badge"><strong>4–5</strong><span>Players per team</span></div></div>
-        <div class="season-registration-copy"><p class="eyebrow">UPCOMING PICKUP TOURNAMENTS</p><h2>Choose an event. Confirm. Play.</h2><p>Choose an event below and register for the night you want to play. Before the event, return during its confirmation window and confirm you are still playing. MXS builds random 4v4 or 5v5 teams from confirmed players only.</p><p class="league-disclaimer">MXS Paintball is an independent, community-run competition and is not affiliated with, endorsed by, or operated by the developer of Infinite Tournament Paintball.</p>
-            <div class="season-details"><div><span>Player profile</span><strong>Create once</strong></div><div><span>Event registration</span><strong>Choose your nights</strong></div><div><span>Before the event</span><strong>Confirm attendance</strong></div><div><span>Flexible format</span><strong>4v4 or 5v5</strong></div></div>
-            <div id="paintball-home-events" class="home-event-list" aria-live="polite"><article class="home-event-card"><p>Loading upcoming events…</p></article></div>
-            <p class="season-note">Each event shows its exact time in your local timezone. Select an event to register or confirm attendance.</p>
+    <section id="events" class="paintball-event-hero">
+        <p class="eyebrow">MXS PAINTBALL PICKUP NIGHTS</p>
+        <h1>Choose a night.<br>We’ll build the teams.</h1>
+        <p class="paintball-event-lead">No permanent team required. Register for an upcoming event, confirm that you’re playing, and MXS will create balanced 4v4 or 5v5 matchups.</p>
+        <div id="paintball-home-events" class="home-event-list" aria-live="polite"><article class="home-event-card"><p>Loading upcoming events…</p></article></div>
+        <p class="league-disclaimer">MXS Paintball is an independent, community-run competition and is not affiliated with, endorsed by, or operated by the developer of Infinite Tournament Paintball.</p>
+    </section>
+
+    <section class="paintball-process">
+        <div class="section-title"><p class="eyebrow">HOW IT WORKS</p><h2>From signup to game night.</h2></div>
+        <div class="paintball-process-grid">
+            <article><span>01</span><h3>Register</h3><p>Choose an upcoming event and create your player profile once.</p></article>
+            <article><span>02</span><h3>Confirm</h3><p>Return during the listed confirmation window to lock in your spot.</p></article>
+            <article><span>03</span><h3>Play</h3><p>MXS forms the teams and publishes your assignment before the event.</p></article>
         </div>
     </section>
 
-    <section class="paintball-hero">
-        <div><p class="eyebrow">INFINITE TOURNAMENT PAINTBALL</p><h1>Pickup competition made simple.</h1><p>No team required. MXS creates the matchups from the players who are actually present, giving the community organized competition without permanent-roster pressure.</p>
-        <div class="hero-actions"><a class="btn secondary" href="/paintball/rules/">Read the Rulebook</a></div></div>
-        <div class="format-badge"><strong>4–5</strong><span>Players per team</span></div>
+    <section class="paintball-resource-grid">
+        <article><p class="eyebrow">EVENT RESULTS</p><h2>Teams, brackets, and winners.</h2><p>Follow each completed pickup night from published teams through final results.</p><a class="btn secondary" href="/paintball/results/">View Results</a></article>
+        <article><p class="eyebrow">OFFICIAL RULES</p><h2>Know the rules before you play.</h2><p>Review eligibility, attendance confirmation, team formation, and fair-play requirements.</p><a class="btn secondary" href="/paintball/rules/">Read the Rulebook</a></article>
     </section>
-
-    <section class="paintball-stats" aria-label="Pickup-night format"><div><span>Player profile</span><strong>Create once</strong></div><div><span>Event signup</span><strong>Register per event</strong></div><div><span>Final commitment</span><strong>Confirm before play</strong></div><div><span>Minimum turnout</span><strong>8 confirmed</strong></div></section>
-
-    <section class="section-title"><p class="eyebrow">HOW IT WORKS</p><h2>Three steps from event signup to first point.</h2><p>The two-step commitment gives organizers an early turnout estimate while ensuring teams use only players who are still available.</p></section>
-    <section class="section-grid paintball-grid"><article class="info-card"><h3>1. Register for an event</h3><p>Browse the posted pickup nights and select Register for This Event whenever you find one you want to play.</p></article><article class="info-card"><h3>2. Confirm attendance</h3><p>Return during that event's confirmation window and press Confirm Attendance. Registration alone does not place you in the generator.</p></article><article class="info-card"><h3>3. Get your team</h3><p>After confirmation closes, MXS generates teams from confirmed players. Your assignment and the full schedule are then published online.</p></article></section>
-
-    <section class="paintball-panel"><div class="section-title-row"><div><p class="eyebrow">BUILT FOR REAL TURNOUT</p><h2>The night adjusts to the players.</h2></div></div><div class="placeholder-grid roster-policy-grid"><article><span>8–9 players</span><h3>4v4 pickup</h3><p>Run a full 4v4 match with any extra confirmed player available as a rotating reserve.</p></article><article><span>10+ players</span><h3>Choose 4v4 or 5v5</h3><p>MXS selects the format that best fits turnout and the planned tournament structure.</p></article><article><span>On-the-fly control</span><h3>Change before publishing</h3><p>The organizer can switch team size and regenerate random teams whenever the night requires it.</p></article></div></section>
-
-    <section class="paintball-panel"><div class="section-title-row"><div><p class="eyebrow">EVENT RESULTS</p><h2>Every pickup night stands on its own.</h2></div><span class="coming-pill">Updated by event</span></div><div class="placeholder-grid"><article><span>Nightly teams</span><h3>Fresh matchups</h3><p>Teams are rebuilt from the confirmed player pool and exist only for that event. Once published, its event card links directly to the teams and bracket.</p></article><article><span>Published results</span><h3>Recognize each winner</h3><p>MXS may publish the teams, match results, and winning lineup after each completed pickup tournament.</p></article></div><div class="hero-actions"><a class="btn secondary" href="/paintball/results/">View Paintball Results</a></div></section>
-
-    <section class="rules-summary"><div><p class="eyebrow">OFFICIAL RULES</p><h2>Know the rules before event night.</h2><p>Pickup nights use event registration, timed attendance confirmation, staff-formed teams, flexible attendance-based formats, fair-play requirements, and referee enforcement.</p><a class="btn secondary" href="/paintball/rules/">View Full Rulebook</a></div><ul><li>Create your player profile once.</li><li>Register separately for each event you want to play.</li><li>Confirm attendance during the organizer's listed window.</li><li>Only confirmed players enter the team generator.</li></ul></section>
-
-    <section class="community-callout"><div><p class="eyebrow">NO TEAM REQUIRED</p><h2>Come ready to play.</h2><p>Choose an event at the top of this page, register, and return during its confirmation window to secure your place in the team generator.</p></div></section>
 </main>
 <footer class="site-footer"><div class="footer-brand"><img src="/static/images/motoxsyndicate-wordmark.png?v=20260719c" alt="MotoXsyndicate" class="footer-logo"><span>v0.9.0</span></div><div class="footer-links"><a href="/paintball/">Paintball</a><a href="/paintball/register/">Events &amp; Registration</a><a href="/paintball/results/">Results</a><a href="/paintball/rules/">Rulebook</a><a href="/paintball/admin/">Organizer Login</a><a href="https://discord.gg/2XXBNqXJwD" target="_blank" rel="noopener">Join Discord</a></div></footer>
 <script src="/static/paintball-home-events.js?v=20260813a"></script>
