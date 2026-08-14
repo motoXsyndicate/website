@@ -21,7 +21,7 @@
     <h1>Results Tool</h1>
     <div class="sub">Two-moto overall calculator • Highest points wins • Moto 2 tiebreaker</div>
     <button class="btn" onclick="window.print()">Print / Save as PDF</button>
-    <button class="btn" onclick="downloadResultsFlyer()">Download Results Flyer PNG</button>
+    <button class="btn" onclick="downloadResultsAndFlyer()">Download Results &amp; Flyer</button>
     <button class="btn orange" onclick="location.href='/mxb/championship/'">Open Championship Manager</button>
     <button class="btn" onclick="saveChampionshipRound()">Save Championship Round</button>
     <button class="btn orange" onclick="publishRoundToWebsite()">Publish One-Time Event &amp; Flyer</button>
@@ -46,7 +46,7 @@
         <div class="status" id="importStatus"></div>
       </div>
       <div id="riders"></div>
-      <div class="actions"><button class="btn" onclick="addRider()">+ Add Rider</button><button class="btn orange" onclick="calculate()">Calculate Overall</button><button class="btn" onclick="exportChampionshipRound()">Export Round for Championship</button><button class="btn" onclick="clearRiders()">Clear Riders</button></div>
+      <div class="actions"><button class="btn" onclick="addRider()">+ Add Rider</button><button class="btn orange" onclick="calculate()">Calculate Overall</button><button class="btn" onclick="clearRiders()">Clear Riders</button></div>
       <div class="note">Scoring: 1st=25, 2nd=22, 3rd=20, 4th=18, then 16,15,14... Enter a finishing position or DNS, DNF, DSQ. Status entries score 0 points. Highest total wins; Moto 2 is the tiebreaker.</div>
     </div>
 
@@ -239,6 +239,11 @@ function exportChampionshipRound(){
  const payload={type:'mxs-round-v1',roundId:`${className}|${roundName}|${eventInfo}`.toLowerCase(),roundName,eventInfo,className,exportedAt:new Date().toISOString(),riders:currentRoundExport};
  const link=document.createElement('a');link.href=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}));
  link.download=`${safeFileName(roundName)}_${safeFileName(className)}.mxsround.json`;document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(link.href),1000);
+}
+function downloadResultsAndFlyer(){
+ if(!currentRoundExport.length||!lastCalculatedResults.length){alert('Import the Moto 1 and Moto 2 results and calculate the overall first.');return;}
+ exportChampionshipRound();
+ downloadResultsFlyer();
 }
 function formatLapTime(seconds){
  const total=Number(seconds); if(!Number.isFinite(total)||total<=0) return '—';
