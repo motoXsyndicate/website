@@ -53,6 +53,7 @@
     else seriesContainer.hidden=true;
   }).catch((caught) => { seriesContainer.innerHTML=`<div class="results-empty"><h2>Standings temporarily unavailable</h2><p>${escapeHtml(caught.message)}</p></div>`; });
   if (roundContainer) load("rounds").then((data) => {
-    roundContainer.innerHTML=data.rounds?.length ? data.rounds.map(renderRound).join("") : '<div class="results-empty"><h2>No one-time event results posted yet</h2><p>Series rounds stay private; this area is only for standalone events.</p></div>';
+    if (data.rounds?.length) roundContainer.innerHTML=data.rounds.map(renderRound).join("");
+    else roundContainer.hidden=true;
   }).catch((caught) => { roundContainer.innerHTML=`<div class="results-empty"><h2>Results temporarily unavailable</h2><p>${escapeHtml(caught.message)}</p></div>`; });
 })();
