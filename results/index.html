@@ -38,13 +38,21 @@
             <span class="results-count">Updated after each event</span>
         </section>
 
+        <section class="results-category-heading">
+            <div><p class="eyebrow">AUTOMATIC RACE CONTROL</p><h2>Latest official rounds</h2></div>
+            <span>Published by approved hosts</span>
+        </section>
+        <section id="mxb-published-results" class="published-results-grid" aria-live="polite">
+            <div class="results-empty"><h2>Loading official rounds…</h2></div>
+        </section>
+
         <!--ADDING A NEW FLYER:
         1. Put the image in /results/flyers/
         2. Copy one result-card block below.
         3. Change the image filename, round, event title, class, and date.
         -->
         <section id="mx-bikes" class="results-category-heading">
-            <div><p class="eyebrow">MX BIKES</p><h2>Championship results</h2></div>
+            <div><p class="eyebrow">FLYER ARCHIVE</p><h2>Championship standings</h2></div>
         </section>
         <section class="results-grid" aria-label="MX Bikes result flyers">
             <article class="result-card">
@@ -125,5 +133,6 @@
             <a href="https://discord.gg/2XXBNqXJwD" target="_blank" rel="noopener">Join Discord</a>
         </div>
     </footer>
+    <script src="/static/mxb-published-results.js?v=20260813a"></script>
 </body>
 </html>

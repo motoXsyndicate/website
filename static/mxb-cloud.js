@@ -23,9 +23,9 @@
   window.publishRoundToWebsite = async function () {
     try {
       const payload = roundPayload();
-      setStatus("Publishing round…");
+      setStatus("Publishing round to the public Results page…");
       await api("admin/rounds",{method:"POST",body:JSON.stringify({payload,published:true})});
-      setStatus(`${payload.roundName} — ${payload.className} is published and saved.`);
+      setStatus(`${payload.roundName} — ${payload.className} is now posted on the public Results page and saved for the Championship Manager.`);
     } catch (caught) { setStatus(caught.message,true); }
   };
   window.mxbSignOut = async function () {

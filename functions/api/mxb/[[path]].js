@@ -233,6 +233,7 @@ export async function onRequest({request,env}) {
     if (route === "admin/rounds" && ["GET","POST"].includes(request.method)) return await rounds(request,env);
     if (route === "admin/series" && ["GET","POST"].includes(request.method)) return await series(request,env);
     if (route === "admin/hosts" && ["GET","POST"].includes(request.method)) return await hosts(request,env);
+    if (route === "public/rounds" && request.method === "GET") return await publicRounds(env);
     return error("Not found.",404);
   } catch (caught) {
     return error(caught.message || "Unexpected server error.",caught.status || 500);
